@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { authorizeRole } from "../authorize-role.middleware";
+import { authorizeRole } from "../middlewares/authorize-role.middleware";
 import { authorizeScope } from "../authorize-scope.middleware";
 
 describe("authorizeRole + authorizeScope combined", () => {

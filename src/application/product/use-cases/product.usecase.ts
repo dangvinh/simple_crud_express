@@ -1,10 +1,11 @@
 // src/application/use-cases/product.usecase.ts
+import { buildPaginatedResult } from "@/shared/utils/pagination.util";
 import { ProductRepository } from "@/domain/product/repositories/product.repository";
 import { CreateProductDTO } from "../dtos/create-product.dto";
 import { UpdateProductDTO } from "../dtos/update-product.dto";
 import { Product } from "@/domain/product/entities/product.entity";
 import { PrismaProductRepository } from "@/infrastructure/database/repositories/prisma-product.repository";
-import { randomUUID } from "node:crypto";
+import { generateUUID } from "@/shared/utils/uuid.util";
 import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
 
@@ -24,14 +25,7 @@ export class ProductUseCases implements IProductService {
     logger.info(`Fetching all products with limit=${limit}, page=${page}`);
 
     const { products, total } = await this.repository.findAllWithCount(params);
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: products,
-      page,
-      total,
-      totalPages,
-    };
+    return buildPaginatedResult(products, total, page, limit);
   }
 
   async get(id: string): Promise<Product | null> {
@@ -41,7 +35,7 @@ export class ProductUseCases implements IProductService {
 
   async create(dto: CreateProductDTO): Promise<Product> {
     const product = new Product({
-      id: randomUUID(), // sinh UUID v4
+      id: generateUUID(), // sinh UUID v4
       ...dto,
       createdAt: dto.createdAt ?? new Date(),
       updatedAt: dto.updatedAt ?? new Date(),

@@ -1,4 +1,4 @@
-import { authorizeRole } from "../authorize-role.middleware";
+import { authorizeRole } from "../middlewares/authorize-role.middleware";
 import { Request, Response, NextFunction } from "express";
 
 describe("authorizeRole middleware", () => {
