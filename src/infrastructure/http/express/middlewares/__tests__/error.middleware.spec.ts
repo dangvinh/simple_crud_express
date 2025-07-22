@@ -78,7 +78,7 @@ describe("errorHandler middleware", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: "InternalServerError",
-      message: "An unexpected error occurred",
+      message: "Something went wrong",
     });
   });
 });

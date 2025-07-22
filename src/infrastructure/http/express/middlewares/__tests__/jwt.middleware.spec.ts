@@ -19,11 +19,15 @@ describe("authenticateJWT", () => {
     next = jest.fn();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should return 401 if no Authorization header", () => {
     authenticateJWT(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Missing or invalid Authorization header",
+      message: "Missing or invalid token",
     });
   });
 
@@ -32,7 +36,7 @@ describe("authenticateJWT", () => {
     authenticateJWT(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Missing or invalid Authorization header",
+      message: "Missing or invalid token",
     });
   });
 
@@ -52,20 +56,17 @@ describe("authenticateJWT", () => {
   it("should call next if token is valid", () => {
     req.headers = { authorization: "Bearer validtoken" };
     const payload = { userId: "123" };
-    mockedJwt.verify.mockReturnValue(
-      payload as unknown as ReturnType<typeof jwt.verify>,
-    );
+    mockedJwt.verify.mockReturnValue(payload as any);
 
     authenticateJWT(req as Request, res as Response, next);
     expect((req as any).user).toEqual(payload);
     expect(next).toHaveBeenCalled();
   });
+
   it("should attach user with role in payload", () => {
     req.headers = { authorization: "Bearer rolebasedtoken" };
     const payload = { userId: "123", role: "admin" };
-    mockedJwt.verify.mockReturnValue(
-      payload as unknown as ReturnType<typeof jwt.verify>,
-    );
+    mockedJwt.verify.mockReturnValue(payload as any);
 
     authenticateJWT(req as Request, res as Response, next);
     expect((req as any).user).toEqual(payload);
@@ -75,9 +76,7 @@ describe("authenticateJWT", () => {
   it("should attach user with scope in payload", () => {
     req.headers = { authorization: "Bearer scopetoken" };
     const payload = { userId: "123", scope: ["product:read", "product:write"] };
-    mockedJwt.verify.mockReturnValue(
-      payload as unknown as ReturnType<typeof jwt.verify>,
-    );
+    mockedJwt.verify.mockReturnValue(payload as any);
 
     authenticateJWT(req as Request, res as Response, next);
     expect((req as any).user).toEqual(payload);

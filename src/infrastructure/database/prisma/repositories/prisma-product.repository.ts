@@ -8,23 +8,29 @@ import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams } from "@/shared/types/pagination";
 import { DatabaseError } from "@/shared/errors/database.error";
 
-const prisma = new PrismaClient();
-
 /**
  * Prisma implementation of ProductRepository with Redis caching
  */
 export class PrismaProductRepository implements ProductRepository {
+  private readonly prisma: PrismaClient;
+  private readonly cache: ProductCache;
+
+  constructor(prisma: PrismaClient, cache: ProductCache) {
+    this.prisma = prisma;
+    this.cache = cache;
+  }
+
   async findById(id: string): Promise<Product | null> {
     logger.info(`Looking up product with id=${id}`);
     try {
       try {
-        const cached = await ProductCache.get(id);
+        const cached = await this.cache.get(id);
         if (cached) return cached;
       } catch (cacheErr) {
         logger.warn(`Redis cache get failed for product id=${id}`, cacheErr);
       }
 
-      const record = await prisma.product.findUnique({ where: { id } });
+      const record = await this.prisma.product.findUnique({ where: { id } });
       if (!record) {
         logger.warn(`Product with id=${id} not found in database`);
         return null;
@@ -33,7 +39,7 @@ export class PrismaProductRepository implements ProductRepository {
       const product = this.toDomain(record);
 
       try {
-        await ProductCache.set(product);
+        await this.cache.set(product);
       } catch (cacheErr) {
         logger.warn(`Redis cache set failed for product id=${id}`, cacheErr);
       }
@@ -51,7 +57,7 @@ export class PrismaProductRepository implements ProductRepository {
     try {
       const skip = (page - 1) * limit;
 
-      const records = await prisma.product.findMany({
+      const records = await this.prisma.product.findMany({
         skip,
         take: limit,
       });
@@ -75,12 +81,12 @@ export class PrismaProductRepository implements ProductRepository {
     try {
       const skip = (page - 1) * limit;
 
-      const [records, total] = await prisma.$transaction([
-        prisma.product.findMany({
+      const [records, total] = await this.prisma.$transaction([
+        this.prisma.product.findMany({
           skip,
           take: limit,
         }),
-        prisma.product.count(),
+        this.prisma.product.count(),
       ]);
       const products = records.map(this.toDomain);
       return { products, total };
@@ -96,12 +102,12 @@ export class PrismaProductRepository implements ProductRepository {
   async save(product: Product): Promise<void> {
     logger.info(`Saving new product with id=${product.id}`);
     try {
-      await prisma.product.create({
+      await this.prisma.product.create({
         data: this.toPersistence(product),
       });
 
       try {
-        await ProductCache.set(product);
+        await this.cache.set(product);
       } catch (cacheErr) {
         logger.warn(
           `Redis cache set failed for product id=${product.id}`,
@@ -117,13 +123,13 @@ export class PrismaProductRepository implements ProductRepository {
   async update(product: Product): Promise<void> {
     logger.info(`Updating product with id=${product.id}`);
     try {
-      await prisma.product.update({
+      await this.prisma.product.update({
         where: { id: product.id },
         data: this.toPersistence(product),
       });
 
       try {
-        await ProductCache.set(product);
+        await this.cache.set(product);
       } catch (cacheErr) {
         logger.warn(
           `Redis cache update failed for product id=${product.id}`,
@@ -139,10 +145,10 @@ export class PrismaProductRepository implements ProductRepository {
   async delete(id: string): Promise<void> {
     logger.info(`Deleting product with id=${id}`);
     try {
-      await prisma.product.delete({ where: { id } });
+      await this.prisma.product.delete({ where: { id } });
 
       try {
-        await ProductCache.del(id);
+        await this.cache.del(id);
       } catch (cacheErr) {
         logger.warn(`Redis cache delete failed for product id=${id}`, cacheErr);
       }

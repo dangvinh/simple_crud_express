@@ -7,9 +7,16 @@ import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
 import { Product } from "@/domain/product/entities/product.entity";
 
-const productUseCases = new ProductUseCases();
-
 export class ProductController {
+  constructor(private readonly productUseCases: ProductUseCases) {}
+
+  /**
+   * Retrieve a paginated list of products.
+   * @route GET /products
+   * @param {number} query.page - Page number for pagination
+   * @param {number} query.limit - Number of items per page
+   * @returns {PaginatedResult<Product>} 200 - List of products with pagination metadata
+   */
   async getAll(req: Request, res: Response) {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
@@ -17,7 +24,7 @@ export class ProductController {
 
       const params: PaginationParams = { page, limit };
       const result: PaginatedResult<Product> =
-        await productUseCases.getAll(params);
+        await this.productUseCases.getAll(params);
 
       return res.status(200).json({
         data: result.data,
@@ -33,10 +40,17 @@ export class ProductController {
     }
   }
 
+  /**
+   * Retrieve a single product by its ID.
+   * @route GET /products/{id}
+   * @param {string} id.path.required - Product ID
+   * @returns {Product} 200 - The requested product
+   * @returns {Error} 404 - Product not found
+   */
   async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const product = await productUseCases.get(id);
+      const product = await this.productUseCases.get(id);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
@@ -47,10 +61,16 @@ export class ProductController {
     }
   }
 
+  /**
+   * Create a new product.
+   * @route POST /products
+   * @param {CreateProductDTO} request.body.required - Product information
+   * @returns {Product} 201 - The newly created product
+   */
   async create(req: Request, res: Response) {
     try {
       const dto: CreateProductDTO = req.body;
-      const created = await productUseCases.create(dto);
+      const created = await this.productUseCases.create(dto);
       return res.status(201).json(created);
     } catch (error) {
       logger.error("Failed to create product:", error);
@@ -58,11 +78,18 @@ export class ProductController {
     }
   }
 
+  /**
+   * Update an existing product.
+   * @route PUT /products/{id}
+   * @param {string} id.path.required - Product ID
+   * @param {UpdateProductDTO} request.body.required - Updated product information
+   * @returns {Product} 200 - The updated product
+   */
   async update(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const dto: UpdateProductDTO = req.body;
-      const updated = await productUseCases.update(id, dto);
+      const updated = await this.productUseCases.update(id, dto);
       return res.status(200).json(updated);
     } catch (error) {
       logger.error("Failed to update product:", error);
@@ -70,10 +97,16 @@ export class ProductController {
     }
   }
 
+  /**
+   * Delete a product by its ID.
+   * @route DELETE /products/{id}
+   * @param {string} id.path.required - Product ID
+   * @returns 204 - Product deleted successfully
+   */
   async remove(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await productUseCases.delete(id);
+      await this.productUseCases.delete(id);
       return res.status(204).send();
     } catch (error) {
       logger.error("Failed to delete product:", error);

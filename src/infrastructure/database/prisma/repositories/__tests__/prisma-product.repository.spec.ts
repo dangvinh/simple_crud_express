@@ -1,7 +1,7 @@
-import { PrismaProductRepository } from "../prisma-product.repository";
-import { Product } from "@/domain/product/entities/product.entity";
+jest.mock("@/infrastructure/cache/redis-product.cache", () => ({
+  ProductCache: jest.fn(() => productCache),
+}));
 
-// Mock dependencies
 jest.mock("@prisma/client", () => {
   return {
     PrismaClient: jest.fn().mockImplementation(() => ({
@@ -16,41 +16,18 @@ jest.mock("@prisma/client", () => {
   };
 });
 
-it("should return null if product not found in cache or DB", async () => {
-  (ProductCache.get as jest.Mock).mockResolvedValue(null);
-  (mockPrisma.product.findUnique as jest.Mock).mockResolvedValue(null);
-
-  const result = await repo.findById("non-existent-id");
-
-  expect(ProductCache.get).toHaveBeenCalledWith("non-existent-id");
-  expect(mockPrisma.product.findUnique).toHaveBeenCalledWith({
-    where: { id: "non-existent-id" },
-  });
-  expect(result).toBeNull();
-});
-
-it("should throw error if DB throws in findById", async () => {
-  (ProductCache.get as jest.Mock).mockResolvedValue(null);
-  (mockPrisma.product.findUnique as jest.Mock).mockRejectedValue(
-    new Error("DB failure"),
-  );
-
-  await expect(repo.findById("1")).rejects.toThrow("DB failure");
-});
-
-jest.mock("@/infrastructure/cache/redis-product.cache", () => ({
-  ProductCache: {
-    get: jest.fn(),
-    set: jest.fn(),
-    del: jest.fn(),
-  },
-}));
-
 import { PrismaClient } from "@prisma/client";
-import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
+import { PrismaProductRepository } from "../prisma-product.repository";
+import { Product } from "@/domain/product/entities/product.entity";
 
-const mockPrisma = new PrismaClient();
-const repo = new PrismaProductRepository();
+const productCache = {
+  get: jest.fn(),
+  set: jest.fn(),
+  del: jest.fn(),
+};
+
+const mockPrisma = new PrismaClient() as jest.Mocked<PrismaClient>;
+const repo = new PrismaProductRepository(mockPrisma, productCache as any);
 
 const mockProduct = new Product({
   id: "1",
@@ -72,16 +49,16 @@ describe("PrismaProductRepository", () => {
   });
 
   it("should return product from cache", async () => {
-    (ProductCache.get as jest.Mock).mockResolvedValue(mockProduct);
+    productCache.get.mockResolvedValue(mockProduct);
 
     const result = await repo.findById("1");
 
-    expect(ProductCache.get).toHaveBeenCalledWith("1");
+    expect(productCache.get).toHaveBeenCalledWith("1");
     expect(result).toEqual(mockProduct);
   });
 
   it("should fetch from DB and cache if not in cache", async () => {
-    (ProductCache.get as jest.Mock).mockResolvedValue(null);
+    productCache.get.mockResolvedValue(null);
     (mockPrisma.product.findUnique as jest.Mock).mockResolvedValue(mockProduct);
 
     const result = await repo.findById("1");
@@ -89,46 +66,62 @@ describe("PrismaProductRepository", () => {
     expect(mockPrisma.product.findUnique).toHaveBeenCalledWith({
       where: { id: "1" },
     });
-    expect(ProductCache.set).toHaveBeenCalled();
+    expect(productCache.set).toHaveBeenCalled();
     expect(result?.id).toBe("1");
   });
 
+  it("should return null if product not found in cache or DB", async () => {
+    productCache.get.mockResolvedValue(null);
+    (mockPrisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const result = await repo.findById("non-existent-id");
+
+    expect(productCache.get).toHaveBeenCalledWith("non-existent-id");
+    expect(mockPrisma.product.findUnique).toHaveBeenCalledWith({
+      where: { id: "non-existent-id" },
+    });
+    expect(result).toBeNull();
+  });
+
+  it("should throw error if DB throws in findById", async () => {
+    productCache.get.mockResolvedValue(null);
+    (mockPrisma.product.findUnique as jest.Mock).mockRejectedValue(
+      new Error("DB failure"),
+    );
+
+    await expect(repo.findById("1")).rejects.toThrow(
+      "Failed to find product by ID",
+    );
+    expect(mockPrisma.product.findUnique).toHaveBeenCalledWith({
+      where: { id: "1" },
+    });
+  });
+
   it("should call Prisma create and cache", async () => {
+    (mockPrisma.product.create as jest.Mock).mockResolvedValue(mockProduct);
     await repo.save(mockProduct);
     expect(mockPrisma.product.create).toHaveBeenCalled();
-    expect(ProductCache.set).toHaveBeenCalledWith(mockProduct);
+    expect(productCache.set).toHaveBeenCalledWith(mockProduct);
   });
 
   it("should call Prisma update and update cache", async () => {
+    (mockPrisma.product.update as jest.Mock).mockResolvedValue(mockProduct);
     await repo.update(mockProduct);
     expect(mockPrisma.product.update).toHaveBeenCalled();
-    expect(ProductCache.set).toHaveBeenCalledWith(mockProduct);
+    expect(productCache.set).toHaveBeenCalledWith(mockProduct);
   });
 
   it("should call Prisma delete and invalidate cache", async () => {
+    (mockPrisma.product.delete as jest.Mock).mockResolvedValue(mockProduct);
     await repo.delete("1");
     expect(mockPrisma.product.delete).toHaveBeenCalledWith({
       where: { id: "1" },
     });
-    expect(ProductCache.del).toHaveBeenCalledWith("1");
+    expect(productCache.del).toHaveBeenCalledWith("1");
   });
 
   it("should return all products from DB", async () => {
-    (mockPrisma.product.findMany as jest.Mock).mockResolvedValue([
-      {
-        id: "1",
-        name: "Test Product",
-        description: "Desc",
-        price: 100,
-        stock: 10,
-        category: "Test",
-        isActive: true,
-        tags: [],
-        images: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ]);
+    (mockPrisma.product.findMany as jest.Mock).mockResolvedValue([mockProduct]);
 
     const result = await repo.findAll({ page: 1, limit: 10 });
 

@@ -30,3 +30,6 @@ coverage/
 # Compiled Jest config
 jest.config.js
 jest.config.js.map
+
+# Data
+data/

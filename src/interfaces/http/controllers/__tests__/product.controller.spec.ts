@@ -1,25 +1,36 @@
 import { Request, Response } from "express";
 import { ProductController } from "../product.controller";
 import { ProductUseCases } from "@/application/product/use-cases/product.usecase";
-
-jest.mock("@/application/use-cases/product.usecase");
+import { Product } from "@/domain/product/entities/product.entity";
 
 describe("ProductController", () => {
   let controller: ProductController;
+  let mockUseCase: jest.Mocked<ProductUseCases>;
   let req: Partial<Request>;
   let res: Partial<Response>;
   let mockJson: jest.Mock;
   let mockStatus: jest.Mock;
+  let mockSend: jest.Mock;
 
   beforeEach(() => {
-    controller = new ProductController();
+    mockUseCase = {
+      getAll: jest.fn(),
+      get: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    } as unknown as jest.Mocked<ProductUseCases>;
+
+    controller = new ProductController(mockUseCase);
     req = {};
+    mockSend = jest.fn();
     mockJson = jest.fn();
-    mockStatus = jest.fn(() => ({ json: mockJson, send: jest.fn() })) as any;
+    mockStatus = jest.fn(() => ({ json: mockJson, send: mockSend })) as any;
+
     res = {
       status: mockStatus,
       json: mockJson,
-      send: jest.fn(),
+      send: mockSend,
     };
   });
 
@@ -28,23 +39,52 @@ describe("ProductController", () => {
   });
 
   it("should return all products with total count", async () => {
-    const mockProducts = [{ id: "1", name: "Product A" }];
-    (ProductUseCases.prototype.getAll as jest.Mock).mockResolvedValue({
-      products: mockProducts,
+    const mockProduct = new Product({
+      id: "1",
+      name: "Product A",
+      description: "Test description",
+      price: 100,
+      stock: 10,
+      category: "Test Category",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const mockProducts = [mockProduct];
+    mockUseCase.getAll.mockResolvedValue({
+      data: mockProducts,
+      page: 1,
       total: 1,
+      totalPages: 1,
     });
 
     req.query = { limit: "10", page: "1" };
     await controller.getAll(req as Request, res as Response);
 
-    expect(ProductUseCases.prototype.getAll).toHaveBeenCalledWith(10, 1);
+    expect(mockUseCase.getAll).toHaveBeenCalledWith({ limit: 10, page: 1 });
     expect(mockStatus).toHaveBeenCalledWith(200);
-    expect(mockJson).toHaveBeenCalledWith({ products: mockProducts, total: 1 });
+    expect(mockJson).toHaveBeenCalledWith({
+      data: mockProducts,
+      pagination: {
+        page: 1,
+        total: 1,
+        totalPages: 1,
+      },
+    });
   });
 
   it("should return a product by ID", async () => {
-    const mockProduct = { id: "1", name: "Product A" };
-    (ProductUseCases.prototype.get as jest.Mock).mockResolvedValue(mockProduct);
+    const mockProduct = new Product({
+      id: "1",
+      name: "Product A",
+      description: "Test description",
+      price: 100,
+      stock: 10,
+      category: "Test Category",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockUseCase.get.mockResolvedValue(mockProduct);
 
     req.params = { id: "1" };
     await controller.getById(req as Request, res as Response);
@@ -54,7 +94,7 @@ describe("ProductController", () => {
   });
 
   it("should return 404 if product not found", async () => {
-    (ProductUseCases.prototype.get as jest.Mock).mockResolvedValue(null);
+    mockUseCase.get.mockResolvedValue(null);
 
     req.params = { id: "1" };
     await controller.getById(req as Request, res as Response);
@@ -65,10 +105,17 @@ describe("ProductController", () => {
 
   it("should create a product", async () => {
     const dto = { name: "New Product", price: 100 };
-    const createdProduct = { id: "1", ...dto };
-    (ProductUseCases.prototype.create as jest.Mock).mockResolvedValue(
-      createdProduct,
-    );
+    const createdProduct = new Product({
+      id: "1",
+      name: "New Product",
+      description: "A new product",
+      price: 100,
+      stock: 10,
+      category: "General",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockUseCase.create.mockResolvedValue(createdProduct);
 
     req.body = dto;
     await controller.create(req as Request, res as Response);
@@ -79,10 +126,17 @@ describe("ProductController", () => {
 
   it("should update a product", async () => {
     const dto = { name: "Updated Product" };
-    const updatedProduct = { id: "1", ...dto };
-    (ProductUseCases.prototype.update as jest.Mock).mockResolvedValue(
-      updatedProduct,
-    );
+    const updatedProduct = new Product({
+      id: "1",
+      name: "Updated Product",
+      description: "Updated description",
+      price: 200,
+      stock: 20,
+      category: "Updated Category",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    mockUseCase.update.mockResolvedValue(updatedProduct);
 
     req.params = { id: "1" };
     req.body = dto;
@@ -93,9 +147,7 @@ describe("ProductController", () => {
   });
 
   it("should delete a product", async () => {
-    (ProductUseCases.prototype.delete as jest.Mock).mockResolvedValue(
-      undefined,
-    );
+    mockUseCase.delete.mockResolvedValue(undefined);
 
     req.params = { id: "1" };
     await controller.remove(req as Request, res as Response);

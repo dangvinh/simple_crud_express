@@ -1,4 +1,4 @@
-import { env } from "@/config/env";
+import { env } from "@/config/env.config";
 import type { Express } from "express";
 import helmet from "helmet";
 import cors from "cors";

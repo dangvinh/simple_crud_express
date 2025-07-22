@@ -1,51 +1,58 @@
 import { Product } from "@/domain/product/entities/product.entity";
 import { logger } from "@/infrastructure/logging/logger";
-import { PRODUCT_CACHE_PREFIX, CACHE_TTL } from "@/config/cache";
+import { CACHE_TTL } from "@/config/cache.config";
 import { RedisCache } from "./redis.client";
+import { buildProductCacheKey } from "./utils/cache-key.util";
 
-const redis = new RedisCache();
+class ProductCache {
+  private readonly redis: RedisCache;
 
-function buildKey(id: string): string {
-  return `${PRODUCT_CACHE_PREFIX}${id}`;
-}
+  constructor(redis: RedisCache) {
+    this.redis = redis;
+  }
 
-export const ProductCache = {
+  private buildKey(id: string): string {
+    return buildProductCacheKey(id);
+  }
+
   async get(id: string): Promise<Product | null> {
-    const key = buildKey(id);
+    const key = this.buildKey(id);
     try {
-      const cached = await redis.get(key);
+      const cached = await this.redis.get(key);
       if (!cached) {
         logger.debug(`Cache miss for product ${id}`);
         return null;
       }
 
       const json = JSON.parse(cached);
-      logger.debug(`Cache hit for product ${id}`);
-      return new Product(json); // Ensure DTO matches constructor
+      const product = Product.fromJSON(json);
+      return product;
     } catch (e) {
       logger.warn(`Redis error during get for product ${id}`, e);
       return null;
     }
-  },
+  }
 
   async set(product: Product): Promise<void> {
-    const key = buildKey(product.id);
+    const key = this.buildKey(product.id);
     try {
-      const data = JSON.stringify(product);
-      await redis.set(key, data, CACHE_TTL);
+      const data = JSON.stringify(product.toJSON());
+      await this.redis.set(key, data, CACHE_TTL);
       logger.debug(`Product ${product.id} cached with TTL=${CACHE_TTL}s`);
     } catch (e) {
       logger.error(`Redis error during set for product ${product.id}`, e);
     }
-  },
+  }
 
   async del(id: string): Promise<void> {
-    const key = buildKey(id);
+    const key = this.buildKey(id);
     try {
-      await redis.delete(key);
+      await this.redis.delete(key);
       logger.debug(`Product ${id} removed from cache`);
     } catch (e) {
       logger.error(`Redis error during delete for product ${id}`, e);
     }
-  },
-};
+  }
+}
+
+export { ProductCache };

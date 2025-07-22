@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/simple_e_commerce/postgres:/var/lib/postgresql/data
     networks:
       - clean_arch_network
   redis:
@@ -21,11 +21,10 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - ./data/simple_e_commerce/redis:/data
     networks:
       - clean_arch_network
-
-volumes:
-  postgres_data:
 
 networks:
   clean_arch_network:

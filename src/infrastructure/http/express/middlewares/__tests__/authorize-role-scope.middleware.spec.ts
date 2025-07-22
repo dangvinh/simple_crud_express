@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { authorizeRole } from "../middlewares/authorize-role.middleware";
 import { authorizeScope } from "../authorize-scope.middleware";
+import { authorizeRole } from "../authorize-role.middleware";
 
 describe("authorizeRole + authorizeScope combined", () => {
   let req: Partial<Request>;

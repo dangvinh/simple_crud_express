@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from "redis";
 import { logger } from "@/infrastructure/logging/logger";
-import { env } from "@/config/env";
+import { env } from "@/config/env.config";
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -19,6 +19,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export class RedisCache {
   private readonly client: RedisClientType;
+  private connected = false;
 
   constructor() {
     const credentials =
@@ -41,6 +42,7 @@ export class RedisCache {
     });
 
     this.client.on("connect", () => {
+      this.connected = true;
       logger.info("✅ Redis connected.");
     });
   }
@@ -51,7 +53,6 @@ export class RedisCache {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         await withTimeout(this.client.connect(), timeout);
-        logger.info("✅ Redis connected.");
         return;
       } catch (err) {
         logger.error(`❌ Redis connection attempt ${attempt} failed:`, err);
@@ -74,6 +75,13 @@ export class RedisCache {
   }
 
   async get(key: string) {
+    if (!this.connected) {
+      logger.warn(
+        `⚠️ Redis GET skipped for key: ${key}, client not connected.`,
+      );
+      return null;
+    }
+
     try {
       return await this.client.get(key);
     } catch (err) {
@@ -83,6 +91,13 @@ export class RedisCache {
   }
 
   async set(key: string, value: string, ttlInSeconds: number) {
+    if (!this.connected) {
+      logger.warn(
+        `⚠️ Redis SET skipped for key: ${key}, client not connected.`,
+      );
+      return null;
+    }
+
     try {
       return await this.client.setEx(key, ttlInSeconds, value);
     } catch (err) {
@@ -92,6 +107,13 @@ export class RedisCache {
   }
 
   async delete(key: string) {
+    if (!this.connected) {
+      logger.warn(
+        `⚠️ Redis DELETE skipped for key: ${key}, client not connected.`,
+      );
+      return null;
+    }
+
     try {
       return await this.client.del(key);
     } catch (err) {

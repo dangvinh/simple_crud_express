@@ -1,5 +1,5 @@
-import { authorizeRole } from "../middlewares/authorize-role.middleware";
 import { Request, Response, NextFunction } from "express";
+import { authorizeRole } from "../authorize-role.middleware";
 
 describe("authorizeRole middleware", () => {
   let req: Partial<Request>;

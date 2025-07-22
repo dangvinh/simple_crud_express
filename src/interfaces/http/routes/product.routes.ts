@@ -1,14 +1,68 @@
-// src/infrastructure/http/express/routes/product.routes.ts
+// src/interfaces/http/routes/product.routes.ts
 import { Router } from "express";
 import { ProductController } from "../controllers/product.controller";
+import { ProductUseCases } from "@/application/product/use-cases/product.usecase";
+import { PrismaProductRepository } from "@/infrastructure/database/prisma/repositories/prisma-product.repository";
+import { prisma } from "@/infrastructure/database/prisma/client";
+import { RedisCache } from "@/infrastructure/cache/redis.client";
+import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
 
 const router = Router();
-const controller = new ProductController();
 
+const redis = new RedisCache();
+const productCache = new ProductCache(redis);
+const repository = new PrismaProductRepository(prisma, productCache);
+const service = new ProductUseCases(repository);
+const controller = new ProductController(service);
+
+/**
+ * @openapi
+ * /api/v1/products:
+ *   get:
+ *     summary: Get all products
+ *     tags:
+ *       - Products
+ */
 router.get("/", controller.getAll);
+
+/**
+ * @openapi
+ * /api/v1/products/{id}:
+ *   get:
+ *     summary: Get a product by ID
+ *     tags:
+ *       - Products
+ */
 router.get("/:id", controller.getById);
+
+/**
+ * @openapi
+ * /api/v1/products:
+ *   post:
+ *     summary: Create a new product
+ *     tags:
+ *       - Products
+ */
 router.post("/", controller.create);
+
+/**
+ * @openapi
+ * /api/v1/products/{id}:
+ *   put:
+ *     summary: Update an existing product
+ *     tags:
+ *       - Products
+ */
 router.put("/:id", controller.update);
+
+/**
+ * @openapi
+ * /api/v1/products/{id}:
+ *   delete:
+ *     summary: Delete a product
+ *     tags:
+ *       - Products
+ */
 router.delete("/:id", controller.remove);
 
 export { router as productRouter };

@@ -190,4 +190,35 @@ export class Product extends BaseEntity {
     this._stock += quantity;
     this.touch();
   }
+  toJSON(): Record<string, any> {
+    return {
+      _id: this._id,
+      _name: this._name,
+      _description: this._description,
+      _price: this._price,
+      _stock: this._stock,
+      _category: this._category,
+      _isActive: this._isActive,
+      _images: this._images,
+      _tags: this._tags,
+      _createdAt: this._createdAt,
+      _updatedAt: this._updatedAt,
+    };
+  }
+
+  static fromJSON(json: Record<string, any>): Product {
+    return new Product({
+      id: json._id,
+      name: json._name,
+      description: json._description,
+      price: json._price,
+      stock: json._stock,
+      category: json._category,
+      isActive: json._isActive,
+      images: json._images,
+      tags: json._tags,
+      createdAt: new Date(json._createdAt),
+      updatedAt: new Date(json._updatedAt),
+    });
+  }
 }

@@ -62,9 +62,7 @@ describe("Product Entity", () => {
 
   it("should throw if price is negative", () => {
     const product = new Product(baseProps);
-    expect(() => product.updatePrice(-10)).toThrow(
-      "Price must be greater than or equal to 0.",
-    );
+    expect(() => product.updatePrice(-10)).toThrow("Price cannot be negative.");
   });
 
   it("should update stock", () => {

@@ -4,7 +4,6 @@ import { ProductRepository } from "@/domain/product/repositories/product.reposit
 import { CreateProductDTO } from "../dtos/create-product.dto";
 import { UpdateProductDTO } from "../dtos/update-product.dto";
 import { Product } from "@/domain/product/entities/product.entity";
-import { PrismaProductRepository } from "@/infrastructure/database/prisma/repositories/prisma-product.repository";
 import { generateUUID } from "@/shared/utils/uuid.util";
 import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
@@ -17,8 +16,8 @@ import { DomainError } from "@/shared/errors/domain.error";
 export class ProductUseCases implements IProductUseCase {
   private readonly repository: ProductRepository;
 
-  constructor(repository?: ProductRepository) {
-    this.repository = repository || new PrismaProductRepository();
+  constructor(repository: ProductRepository) {
+    this.repository = repository!;
   }
 
   async getAll(params: PaginationParams): Promise<PaginatedResult<Product>> {

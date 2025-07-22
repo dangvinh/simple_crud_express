@@ -1,23 +1,26 @@
-import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
-import { Product } from "@/domain/product/entities/product.entity";
-import { CACHE_TTL, PRODUCT_CACHE_PREFIX } from "@/config/cache";
-
-// Mock Redis client as an object
 const mockRedis = {
   get: jest.fn(),
-  setEx: jest.fn(),
-  del: jest.fn(),
+  set: jest.fn(),
+  delete: jest.fn(),
 };
 
-jest.mock("../redis.client", () => ({
-  redis: mockRedis,
-}));
+jest.mock("../redis.client", () => {
+  return {
+    RedisCache: jest.fn().mockImplementation(() => mockRedis),
+  };
+});
+
+import { ProductCache } from "../redis-product.cache";
+import { Product } from "@/domain/product/entities/product.entity";
+import { CACHE_TTL } from "@/config/cache.config";
+import { buildProductCacheKey } from "../utils/cache-key.util";
 
 // Mock logger
 jest.mock("@/infrastructure/logging/logger", () => ({
   logger: {
     error: jest.fn(),
     info: jest.fn(),
+    warn: jest.fn(),
   },
 }));
 
@@ -36,39 +39,54 @@ describe("ProductCache", () => {
     updatedAt: new Date(),
   });
 
+  const cache = new ProductCache(mockRedis as any);
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("should cache product successfully", async () => {
-    await ProductCache.set(mockProduct);
+    const product = mockProduct;
+    const expectedCacheKey = buildProductCacheKey(product.id);
+    const expectedCacheValue = JSON.stringify(product.toJSON());
+    await cache.set(product);
 
-    expect(mockRedis.setEx).toHaveBeenCalledWith(
-      `${PRODUCT_CACHE_PREFIX}p123`,
+    expect(mockRedis.set).toHaveBeenCalledWith(
+      expectedCacheKey,
+      expectedCacheValue,
       CACHE_TTL,
-      JSON.stringify(mockProduct),
     );
   });
 
   it("should return null if product not in cache", async () => {
     mockRedis.get.mockResolvedValue(null);
 
-    const result = await ProductCache.get("p123");
+    const result = await cache.get("p123");
     expect(result).toBeNull();
-    expect(mockRedis.get).toHaveBeenCalledWith(`${PRODUCT_CACHE_PREFIX}p123`);
+    expect(mockRedis.get).toHaveBeenCalledWith(buildProductCacheKey("p123"));
   });
 
   it("should parse product from cache", async () => {
-    mockRedis.get.mockResolvedValue(JSON.stringify(mockProduct));
+    const jsonStr = JSON.stringify(mockProduct.toJSON());
+    const expectedKey = buildProductCacheKey("p123");
+    mockRedis.get.mockResolvedValueOnce(jsonStr);
 
-    const result = await ProductCache.get("p123");
+    const result = await cache.get("p123");
 
+    expect(mockRedis.get).toHaveBeenCalledWith(expectedKey);
+    expect(result).not.toBeNull();
     expect(result).toBeInstanceOf(Product);
-    expect(result?.id).toBe("p123");
+    expect(result?.id).toBe(mockProduct.id);
+    expect(result?.name).toBe(mockProduct.name);
+    expect(result?.description).toBe(mockProduct.description);
+    expect(result?.price).toBe(mockProduct.price);
+    expect(result?.stock).toBe(mockProduct.stock);
+    expect(result?.category).toBe(mockProduct.category);
+    expect(result?.isActive).toBe(mockProduct.isActive);
   });
 
   it("should delete product from cache", async () => {
-    await ProductCache.del("p123");
-    expect(mockRedis.del).toHaveBeenCalledWith(`${PRODUCT_CACHE_PREFIX}p123`);
+    await cache.del("p123");
+    expect(mockRedis.delete).toHaveBeenCalledWith(buildProductCacheKey("p123"));
   });
 });
