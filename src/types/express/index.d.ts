@@ -1,11 +1,12 @@
+// types/express/index.d.ts
 import { Request } from "express";
 
-declare global {
-  namespace Express {
-    interface Request {
-      id?: string;
-    }
+declare module "express" {
+  interface Request {
+    user?: {
+      id: string;
+      role: string;
+      scopes: string[];
+    };
   }
 }
-
-export {};

@@ -6,6 +6,7 @@ import { Product } from "@/domain/product/entities/product.entity";
 import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
 import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams } from "@/shared/types/pagination";
+import { DatabaseError } from "@/shared/errors/database.error";
 
 const prisma = new PrismaClient();
 
@@ -16,8 +17,12 @@ export class PrismaProductRepository implements ProductRepository {
   async findById(id: string): Promise<Product | null> {
     logger.info(`Looking up product with id=${id}`);
     try {
-      const cached = await ProductCache.get(id);
-      if (cached) return cached;
+      try {
+        const cached = await ProductCache.get(id);
+        if (cached) return cached;
+      } catch (cacheErr) {
+        logger.warn(`Redis cache get failed for product id=${id}`, cacheErr);
+      }
 
       const record = await prisma.product.findUnique({ where: { id } });
       if (!record) {
@@ -26,11 +31,17 @@ export class PrismaProductRepository implements ProductRepository {
       }
 
       const product = this.toDomain(record);
-      await ProductCache.set(product); // Cache it
+
+      try {
+        await ProductCache.set(product);
+      } catch (cacheErr) {
+        logger.warn(`Redis cache set failed for product id=${id}`, cacheErr);
+      }
+
       return product;
     } catch (error) {
       logger.error(`Error finding product with id=${id}:`, error);
-      throw error;
+      throw new DatabaseError("Failed to find product by ID");
     }
   }
 
@@ -50,7 +61,7 @@ export class PrismaProductRepository implements ProductRepository {
         `Error fetching all products, page=${page}, limit=${limit}:`,
         error,
       );
-      throw error;
+      throw new DatabaseError("Failed to fetch products");
     }
   }
 
@@ -78,7 +89,7 @@ export class PrismaProductRepository implements ProductRepository {
         `Error fetching all products with count, page=${page}, limit=${limit}:`,
         error,
       );
-      throw error;
+      throw new DatabaseError("Failed to fetch products with count");
     }
   }
 
@@ -88,10 +99,18 @@ export class PrismaProductRepository implements ProductRepository {
       await prisma.product.create({
         data: this.toPersistence(product),
       });
-      await ProductCache.set(product); // Cache new product
+
+      try {
+        await ProductCache.set(product);
+      } catch (cacheErr) {
+        logger.warn(
+          `Redis cache set failed for product id=${product.id}`,
+          cacheErr,
+        );
+      }
     } catch (error) {
       logger.error(`Error saving product with id=${product.id}:`, error);
-      throw error;
+      throw new DatabaseError("Failed to save product");
     }
   }
 
@@ -102,10 +121,18 @@ export class PrismaProductRepository implements ProductRepository {
         where: { id: product.id },
         data: this.toPersistence(product),
       });
-      await ProductCache.set(product); // Update cache
+
+      try {
+        await ProductCache.set(product);
+      } catch (cacheErr) {
+        logger.warn(
+          `Redis cache update failed for product id=${product.id}`,
+          cacheErr,
+        );
+      }
     } catch (error) {
       logger.error(`Error updating product with id=${product.id}:`, error);
-      throw error;
+      throw new DatabaseError("Failed to update product");
     }
   }
 
@@ -113,10 +140,15 @@ export class PrismaProductRepository implements ProductRepository {
     logger.info(`Deleting product with id=${id}`);
     try {
       await prisma.product.delete({ where: { id } });
-      await ProductCache.del(id); // Invalidate cache
+
+      try {
+        await ProductCache.del(id);
+      } catch (cacheErr) {
+        logger.warn(`Redis cache delete failed for product id=${id}`, cacheErr);
+      }
     } catch (error) {
       logger.error(`Error deleting product with id=${id}:`, error);
-      throw error;
+      throw new DatabaseError("Failed to delete product");
     }
   }
 

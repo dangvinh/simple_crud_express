@@ -34,6 +34,9 @@ const envSchema = z.object({
   REDIS_PORT: z.coerce.number().int().min(1),
   REDIS_USERNAME: z.string().optional(),
   REDIS_PASSWORD: z.string().optional(),
+  CACHE_TTL: z.coerce.number().default(3600),
+  // CORS
+  CORS_ORIGINS: z.string().default(""),
 });
 
 // Validate environment variables
@@ -48,4 +51,9 @@ if (!parsedEnv.success) {
   process.exit(1);
 }
 
-export const env = parsedEnv.data;
+export const env = {
+  ...parsedEnv.data,
+  CORS_ORIGIN_LIST: parsedEnv.data.CORS_ORIGINS.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+};

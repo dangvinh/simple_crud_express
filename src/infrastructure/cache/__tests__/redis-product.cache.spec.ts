@@ -1,18 +1,25 @@
-import { ProductCache } from "../redis-product.cache";
+import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
 import { Product } from "@/domain/product/entities/product.entity";
+import { CACHE_TTL, PRODUCT_CACHE_PREFIX } from "@/config/cache";
 
-// Mock Redis client
-jest.mock("../redis.client", () => {
-  return {
-    redis: {
-      get: jest.fn(),
-      setEx: jest.fn(),
-      del: jest.fn(),
-    },
-  };
-});
+// Mock Redis client as an object
+const mockRedis = {
+  get: jest.fn(),
+  setEx: jest.fn(),
+  del: jest.fn(),
+};
 
-import { redis } from "../redis.client";
+jest.mock("../redis.client", () => ({
+  redis: mockRedis,
+}));
+
+// Mock logger
+jest.mock("@/infrastructure/logging/logger", () => ({
+  logger: {
+    error: jest.fn(),
+    info: jest.fn(),
+  },
+}));
 
 describe("ProductCache", () => {
   const mockProduct = new Product({
@@ -36,23 +43,23 @@ describe("ProductCache", () => {
   it("should cache product successfully", async () => {
     await ProductCache.set(mockProduct);
 
-    expect(redis.setEx).toHaveBeenCalledWith(
-      "product:p123",
-      expect.any(Number), // TTL
+    expect(mockRedis.setEx).toHaveBeenCalledWith(
+      `${PRODUCT_CACHE_PREFIX}p123`,
+      CACHE_TTL,
       JSON.stringify(mockProduct),
     );
   });
 
   it("should return null if product not in cache", async () => {
-    (redis.get as jest.Mock).mockResolvedValue(null);
+    mockRedis.get.mockResolvedValue(null);
 
     const result = await ProductCache.get("p123");
     expect(result).toBeNull();
-    expect(redis.get).toHaveBeenCalledWith("product:p123");
+    expect(mockRedis.get).toHaveBeenCalledWith(`${PRODUCT_CACHE_PREFIX}p123`);
   });
 
   it("should parse product from cache", async () => {
-    (redis.get as jest.Mock).mockResolvedValue(JSON.stringify(mockProduct));
+    mockRedis.get.mockResolvedValue(JSON.stringify(mockProduct));
 
     const result = await ProductCache.get("p123");
 
@@ -62,6 +69,6 @@ describe("ProductCache", () => {
 
   it("should delete product from cache", async () => {
     await ProductCache.del("p123");
-    expect(redis.del).toHaveBeenCalledWith("product:p123");
+    expect(mockRedis.del).toHaveBeenCalledWith(`${PRODUCT_CACHE_PREFIX}p123`);
   });
 });

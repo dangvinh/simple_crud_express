@@ -1,12 +1,12 @@
 // src/infrastructure/http/express/app.ts
 import express from "express";
 import morgan from "morgan";
-import "@/types/express";
 import { productRouter } from "../../../interfaces/http/routes/product.routes";
-import { applySecurityMiddleware } from "@/infrastructure/security/middlewares/security.middleware";
-import { authenticateJWT } from "@/infrastructure/security/middlewares/jwt.middleware";
-import { authorizeRole } from "@/infrastructure/security/middlewares/authorize-role.middleware";
-import { authorizeScope } from "@/infrastructure/security/middlewares/authorize-scope.middleware";
+import { applySecurityMiddleware } from "@/infrastructure/http/express/middlewares/security.middleware";
+import { authenticateJWT } from "@/infrastructure/http/express/middlewares/jwt.middleware";
+import { authorizeRole } from "@/infrastructure/http/express/middlewares/authorize-role.middleware";
+import { authorizeScope } from "@/infrastructure/http/express/middlewares/authorize-scope.middleware";
+import { RedisCache } from "@/infrastructure/cache/redis.client";
 
 const app = express();
 
@@ -35,5 +35,8 @@ app.use(
   authorizeScope(["product:read", "product:write"]),
   productRouter,
 );
+
+const redisCache = new RedisCache();
+await redisCache.connectWithRetry();
 
 export { app };

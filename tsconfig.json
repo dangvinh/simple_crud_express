@@ -36,7 +36,9 @@
     "allowImportingTsExtensions": false,
 
     // Add global types for Node.js and Jest
-    "types": ["node", "jest"]
+    "types": ["node", "express", "jest"],
+
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "coverage"]

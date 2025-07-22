@@ -4,16 +4,17 @@ import { ProductRepository } from "@/domain/product/repositories/product.reposit
 import { CreateProductDTO } from "../dtos/create-product.dto";
 import { UpdateProductDTO } from "../dtos/update-product.dto";
 import { Product } from "@/domain/product/entities/product.entity";
-import { PrismaProductRepository } from "@/infrastructure/database/repositories/prisma-product.repository";
+import { PrismaProductRepository } from "@/infrastructure/database/prisma/repositories/prisma-product.repository";
 import { generateUUID } from "@/shared/utils/uuid.util";
 import { logger } from "@/infrastructure/logging/logger";
 import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
+import { IProductUseCase } from "../interfaces/product-service.interface";
+import { DomainError } from "@/shared/errors/domain.error";
 
-import { IProductService } from "../interfaces/product-service.interface";
 /**
  * Use cases for Product operations
  */
-export class ProductUseCases implements IProductService {
+export class ProductUseCases implements IProductUseCase {
   private readonly repository: ProductRepository;
 
   constructor(repository?: ProductRepository) {
@@ -50,7 +51,7 @@ export class ProductUseCases implements IProductService {
     const existing = await this.repository.findById(id);
     if (!existing) {
       logger.warn(`Product with id=${id} not found`);
-      throw new Error("Product not found");
+      throw new DomainError("Product not found");
     }
 
     const updated = new Product({
@@ -77,7 +78,7 @@ export class ProductUseCases implements IProductService {
     const existing = await this.repository.findById(id);
     if (!existing) {
       logger.warn(`Product with id=${id} not found`);
-      throw new Error("Product not found");
+      throw new DomainError("Product not found");
     }
     await this.repository.delete(id);
     logger.info(`Product with id=${id} deleted`);

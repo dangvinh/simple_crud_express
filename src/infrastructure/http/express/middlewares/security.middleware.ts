@@ -1,10 +1,11 @@
+import { env } from "@/config/env";
+import type { Express } from "express";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import type { Express } from "express";
 
 const corsOptions: cors.CorsOptions = {
-  origin: ["http://localhost:4000"], // TODO: Replace with real client domains
+  origin: env.CORS_ORIGIN_LIST,
   credentials: true,
 };
 
