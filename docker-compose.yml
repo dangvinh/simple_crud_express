@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: clean_arch_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clean_arch_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clean_arch_network
+  redis:
+    image: redis:7-alpine
+    container_name: clean_arch_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - clean_arch_network
+
+volumes:
+  postgres_data:
+
+networks:
+  clean_arch_network:
+    driver: bridge

@@ -1,0 +1,12 @@
+{
+  // Extends the main tsconfig settings
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Only include types for Jest during testing
+    "types": ["jest", "node"],
+    // Optionally override rootDir for test isolation
+    "outDir": "./dist-test"
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    // Set the JavaScript language version for the output files
+    "target": "ES2022",
+
+    // Use ECMAScript modules
+    "module": "ESNext",
+
+    // Use bundler-style resolution to support aliases and suppress extension warnings
+    "moduleResolution": "bundler",
+
+    // Define the root folder for module resolution
+    "baseUrl": "./src",
+
+    // Define path alias to simplify import paths
+    "paths": {
+      "@/*": ["*"]
+    },
+
+    // Prevent the compiler from emitting output; use tsup or other tools for bundling
+    "noEmit": true,
+
+    // Enable interoperability between CommonJS and ESModules
+    "esModuleInterop": true,
+
+    // Skip type checking for declaration files
+    "skipLibCheck": true,
+
+    // Enable strict type checking options
+    "strict": true,
+
+    // Allow default imports from modules with no default export
+    "allowSyntheticDefaultImports": true,
+
+    // Enable support for using `.ts` file extensions in imports if desired
+    "allowImportingTsExtensions": false,
+
+    // Add global types for Node.js and Jest
+    "types": ["node", "jest"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "coverage"]
+}

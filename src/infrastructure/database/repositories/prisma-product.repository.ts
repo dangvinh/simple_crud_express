@@ -1,0 +1,156 @@
+// src/infrastructure/database/repositories/prisma-product.repository.ts
+
+import { PrismaClient } from "@prisma/client";
+import { ProductRepository } from "@/domain/product/repositories/product.repository";
+import { Product } from "@/domain/product/entities/product.entity";
+import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
+import { logger } from "@/infrastructure/logging/logger";
+import { PaginationParams } from "@/shared/types/pagination";
+
+const prisma = new PrismaClient();
+
+/**
+ * Prisma implementation of ProductRepository with Redis caching
+ */
+export class PrismaProductRepository implements ProductRepository {
+  async findById(id: string): Promise<Product | null> {
+    logger.info(`Looking up product with id=${id}`);
+    try {
+      const cached = await ProductCache.get(id);
+      if (cached) return cached;
+
+      const record = await prisma.product.findUnique({ where: { id } });
+      if (!record) {
+        logger.warn(`Product with id=${id} not found in database`);
+        return null;
+      }
+
+      const product = this.toDomain(record);
+      await ProductCache.set(product); // Cache it
+      return product;
+    } catch (error) {
+      logger.error(`Error finding product with id=${id}:`, error);
+      throw error;
+    }
+  }
+
+  async findAll(params: PaginationParams): Promise<Product[]> {
+    const { page, limit } = params;
+    logger.info(`Fetching all products, page=${page}, limit=${limit}`);
+    try {
+      const skip = (page - 1) * limit;
+
+      const records = await prisma.product.findMany({
+        skip,
+        take: limit,
+      });
+      return records.map(this.toDomain);
+    } catch (error) {
+      logger.error(
+        `Error fetching all products, page=${page}, limit=${limit}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async findAllWithCount(
+    params: PaginationParams,
+  ): Promise<{ products: Product[]; total: number }> {
+    const { page, limit } = params;
+    logger.info(
+      `Fetching all products with count, page=${page}, limit=${limit}`,
+    );
+    try {
+      const skip = (page - 1) * limit;
+
+      const [records, total] = await prisma.$transaction([
+        prisma.product.findMany({
+          skip,
+          take: limit,
+        }),
+        prisma.product.count(),
+      ]);
+      const products = records.map(this.toDomain);
+      return { products, total };
+    } catch (error) {
+      logger.error(
+        `Error fetching all products with count, page=${page}, limit=${limit}:`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async save(product: Product): Promise<void> {
+    logger.info(`Saving new product with id=${product.id}`);
+    try {
+      await prisma.product.create({
+        data: this.toPersistence(product),
+      });
+      await ProductCache.set(product); // Cache new product
+    } catch (error) {
+      logger.error(`Error saving product with id=${product.id}:`, error);
+      throw error;
+    }
+  }
+
+  async update(product: Product): Promise<void> {
+    logger.info(`Updating product with id=${product.id}`);
+    try {
+      await prisma.product.update({
+        where: { id: product.id },
+        data: this.toPersistence(product),
+      });
+      await ProductCache.set(product); // Update cache
+    } catch (error) {
+      logger.error(`Error updating product with id=${product.id}:`, error);
+      throw error;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    logger.info(`Deleting product with id=${id}`);
+    try {
+      await prisma.product.delete({ where: { id } });
+      await ProductCache.del(id); // Invalidate cache
+    } catch (error) {
+      logger.error(`Error deleting product with id=${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Convert from Prisma DB record to Domain Entity
+  private readonly toDomain = (record: any): Product => {
+    return new Product({
+      id: record.id,
+      name: record.name,
+      description: record.description,
+      price: record.price,
+      stock: record.stock,
+      category: record.category,
+      isActive: record.isActive,
+      tags: record.tags,
+      images: record.images,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+    });
+  };
+
+  // Convert from Domain Entity to Prisma format
+  private readonly toPersistence = (product: Product) => {
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      stock: product.stock,
+      category: product.category,
+      isActive: product.isActive,
+      tags: product.tags,
+      images: product.images,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+    };
+  };
+}
