@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
+import { v7 as uuidv7 } from "uuid";
 
 // Generate a version 4 UUID
 export function generateUUID(): string {
-  return randomUUID();
+  return uuidv7();
 }

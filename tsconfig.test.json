@@ -2,6 +2,8 @@
   // Extends the main tsconfig settings
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "target": "es2020",
+    "module": "es2022",
     // Only include types for Jest during testing
     "types": ["jest", "node"],
     // Optionally override rootDir for test isolation

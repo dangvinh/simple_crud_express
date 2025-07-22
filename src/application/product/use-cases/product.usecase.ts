@@ -35,8 +35,8 @@ export class ProductUseCases implements IProductUseCase {
 
   async create(dto: CreateProductDTO): Promise<Product> {
     const product = new Product({
-      id: generateUUID(), // sinh UUID v4
       ...dto,
+      id: generateUUID(), // sinh UUID v4
       createdAt: dto.createdAt ?? new Date(),
       updatedAt: dto.updatedAt ?? new Date(),
     });

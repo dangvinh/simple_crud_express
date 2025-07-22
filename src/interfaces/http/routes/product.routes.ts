@@ -4,13 +4,12 @@ import { ProductController } from "../controllers/product.controller";
 import { ProductUseCases } from "@/application/product/use-cases/product.usecase";
 import { PrismaProductRepository } from "@/infrastructure/database/prisma/repositories/prisma-product.repository";
 import { prisma } from "@/infrastructure/database/prisma/client";
-import { RedisCache } from "@/infrastructure/cache/redis.client";
 import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
+import { redisCache } from "@/infrastructure/cache";
 
 const router = Router();
 
-const redis = new RedisCache();
-const productCache = new ProductCache(redis);
+const productCache = new ProductCache(redisCache);
 const repository = new PrismaProductRepository(prisma, productCache);
 const service = new ProductUseCases(repository);
 const controller = new ProductController(service);

@@ -8,16 +8,20 @@ import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
 import { Product } from "@/domain/product/entities/product.entity";
 
 export class ProductController {
-  constructor(private readonly productUseCases: ProductUseCases) {}
+  constructor(private readonly productUseCases?: ProductUseCases) {
+    this.getAll = this.getAll.bind(this);
+    this.getById = this.getById.bind(this);
+    this.create = this.create.bind(this);
+    this.update = this.update.bind(this);
+    this.remove = this.remove.bind(this);
+  }
 
-  /**
-   * Retrieve a paginated list of products.
-   * @route GET /products
-   * @param {number} query.page - Page number for pagination
-   * @param {number} query.limit - Number of items per page
-   * @returns {PaginatedResult<Product>} 200 - List of products with pagination metadata
-   */
-  async getAll(req: Request, res: Response) {
+  getAll = async (req: Request, res: Response) => {
+    if (!this.productUseCases) {
+      logger.error("ProductUseCases is undefined");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const page = parseInt(req.query.page as string) || 1;
@@ -38,16 +42,14 @@ export class ProductController {
       logger.error("Failed to get products:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  };
 
-  /**
-   * Retrieve a single product by its ID.
-   * @route GET /products/{id}
-   * @param {string} id.path.required - Product ID
-   * @returns {Product} 200 - The requested product
-   * @returns {Error} 404 - Product not found
-   */
-  async getById(req: Request, res: Response) {
+  getById = async (req: Request, res: Response) => {
+    if (!this.productUseCases) {
+      logger.error("ProductUseCases is undefined");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
     try {
       const { id } = req.params;
       const product = await this.productUseCases.get(id);
@@ -59,15 +61,14 @@ export class ProductController {
       logger.error("Failed to get product by id:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  };
 
-  /**
-   * Create a new product.
-   * @route POST /products
-   * @param {CreateProductDTO} request.body.required - Product information
-   * @returns {Product} 201 - The newly created product
-   */
-  async create(req: Request, res: Response) {
+  create = async (req: Request, res: Response) => {
+    if (!this.productUseCases) {
+      logger.error("ProductUseCases is undefined");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
     try {
       const dto: CreateProductDTO = req.body;
       const created = await this.productUseCases.create(dto);
@@ -76,16 +77,14 @@ export class ProductController {
       logger.error("Failed to create product:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  };
 
-  /**
-   * Update an existing product.
-   * @route PUT /products/{id}
-   * @param {string} id.path.required - Product ID
-   * @param {UpdateProductDTO} request.body.required - Updated product information
-   * @returns {Product} 200 - The updated product
-   */
-  async update(req: Request, res: Response) {
+  update = async (req: Request, res: Response) => {
+    if (!this.productUseCases) {
+      logger.error("ProductUseCases is undefined");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
     try {
       const { id } = req.params;
       const dto: UpdateProductDTO = req.body;
@@ -95,15 +94,14 @@ export class ProductController {
       logger.error("Failed to update product:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  };
 
-  /**
-   * Delete a product by its ID.
-   * @route DELETE /products/{id}
-   * @param {string} id.path.required - Product ID
-   * @returns 204 - Product deleted successfully
-   */
-  async remove(req: Request, res: Response) {
+  remove = async (req: Request, res: Response) => {
+    if (!this.productUseCases) {
+      logger.error("ProductUseCases is undefined");
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
     try {
       const { id } = req.params;
       await this.productUseCases.delete(id);
@@ -112,5 +110,5 @@ export class ProductController {
       logger.error("Failed to delete product:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  };
 }
