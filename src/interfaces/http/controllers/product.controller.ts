@@ -1,4 +1,3 @@
-// src/infrastructure/http/express/controllers/product.controller.ts
 import type { Request, Response } from 'express';
 
 import type { ProductUseCases } from '@/application/product/use-cases/product.usecase';

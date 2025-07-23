@@ -1,5 +1,3 @@
-// src/domain/product/entities/product.entity.ts
-
 import { BaseEntity } from '@/shared/base/base.entity';
 import { DomainError } from '@/shared/errors/domain.error';
 

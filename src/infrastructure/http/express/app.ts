@@ -1,4 +1,3 @@
-// src/infrastructure/http/express/app.ts
 import express from 'express';
 import morgan from 'morgan';
 

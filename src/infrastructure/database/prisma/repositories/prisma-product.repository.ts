@@ -1,5 +1,3 @@
-// src/infrastructure/database/repositories/prisma-product.repository.ts
-
 import type { PrismaClient } from '@prisma/client';
 
 import type { ProductRepository } from '@/domain/product/repositories/product.repository';

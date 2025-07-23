@@ -1,4 +1,3 @@
-// src/interfaces/http/routes/product.routes.ts
 import { Router } from 'express';
 
 import { ProductController } from '../controllers/product.controller';

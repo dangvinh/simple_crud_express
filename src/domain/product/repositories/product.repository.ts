@@ -1,5 +1,3 @@
-// src/domain/product/repositories/product.repository.ts
-
 import type { Product } from '@/domain/product/entities/product.entity';
 import type { PaginationParams } from '@/shared/types/pagination';
 

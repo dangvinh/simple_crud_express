@@ -1,5 +1,3 @@
-// src/application/product/dto/update-product.dto.ts
-
 export interface UpdateProductDTO {
   name?: string;
   description?: string;
