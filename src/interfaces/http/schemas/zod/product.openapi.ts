@@ -82,7 +82,7 @@ export const registerProductSchemas = (registry: OpenAPIRegistry) => {
     tags: ['Products'],
     request: {
       params: z.object({
-        id: z.uuid(),
+        id: z.string().openapi({ description: 'Product ID to update' }),
       }),
       body: {
         content: {
