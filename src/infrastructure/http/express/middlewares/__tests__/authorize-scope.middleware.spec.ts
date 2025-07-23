@@ -25,7 +25,7 @@ describe('authorizeScope middleware', () => {
   });
 
   it('should return 403 if user lacks required scope', () => {
-    (req as any).user = { scope: ['product:write'] };
+    req.user = { id: 'user-123', role: 'user', scopes: ['product:write'] };
     authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
@@ -34,7 +34,7 @@ describe('authorizeScope middleware', () => {
   });
 
   it('should call next if user has one of the required scopes', () => {
-    (req as any).user = { scope: ['product:read', 'product:write'] };
+    req.user = { id: 'user-123', role: 'user', scopes: ['product:read', 'product:write'] };
     authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(next).toHaveBeenCalled();
   });

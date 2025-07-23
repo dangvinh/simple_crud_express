@@ -12,5 +12,5 @@ export function validateProductId(req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  next();
+  return next();
 }

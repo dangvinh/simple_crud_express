@@ -4,8 +4,7 @@ import type { ProductUseCases } from '@/application/product/use-cases/product.us
 import type { CreateProductDTO } from '@/application/product/dtos/create-product.dto';
 import type { UpdateProductDTO } from '@/application/product/dtos/update-product.dto';
 import { logger } from '@/infrastructure/logging/logger';
-import type { PaginationParams, PaginatedResult } from '@/shared/types/pagination';
-import type { Product } from '@/domain/product/entities/product.entity';
+import type { PaginationParams } from '@/shared/types/pagination';
 
 export class ProductController {
   constructor(private readonly productUseCases?: ProductUseCases) {
@@ -27,7 +26,7 @@ export class ProductController {
       const page = parseInt(req.query.page as string) || 1;
 
       const params: PaginationParams = { page, limit };
-      const result: PaginatedResult<Product> = await this.productUseCases.getAll(params);
+      const result = await this.productUseCases.getAll(params);
 
       return res.status(200).json({
         data: result.data,

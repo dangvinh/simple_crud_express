@@ -52,7 +52,7 @@ describe('ProductController', () => {
       updatedAt: new Date(),
     });
 
-    const mockProducts = [mockProduct];
+    const mockProducts = [mockProduct].map((mp) => mp.toPublicObject());
     mockUseCase.getAll.mockResolvedValue({
       data: mockProducts,
       page: 1,
@@ -86,13 +86,13 @@ describe('ProductController', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockUseCase.get.mockResolvedValue(mockProduct);
+    mockUseCase.get.mockResolvedValue(mockProduct.toPublicObject());
 
     req.params = { id: '1' };
     await controller.getById(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(200);
-    expect(mockJson).toHaveBeenCalledWith(mockProduct);
+    expect(mockJson).toHaveBeenCalledWith(mockProduct.toPublicObject());
   });
 
   it('should return 404 if product not found', async () => {
@@ -117,13 +117,13 @@ describe('ProductController', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockUseCase.create.mockResolvedValue(createdProduct);
+    mockUseCase.create.mockResolvedValue(createdProduct.toPublicObject());
 
     req.body = dto;
     await controller.create(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(201);
-    expect(mockJson).toHaveBeenCalledWith(createdProduct);
+    expect(mockJson).toHaveBeenCalledWith(createdProduct.toPublicObject());
   });
 
   it('should update a product', async () => {
@@ -138,14 +138,14 @@ describe('ProductController', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    mockUseCase.update.mockResolvedValue(updatedProduct);
+    mockUseCase.update.mockResolvedValue(updatedProduct.toPublicObject());
 
     req.params = { id: '1' };
     req.body = dto;
     await controller.update(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(200);
-    expect(mockJson).toHaveBeenCalledWith(updatedProduct);
+    expect(mockJson).toHaveBeenCalledWith(updatedProduct.toPublicObject());
   });
 
   it('should delete a product', async () => {

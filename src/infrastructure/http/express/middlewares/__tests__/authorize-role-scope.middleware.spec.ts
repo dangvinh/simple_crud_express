@@ -18,9 +18,10 @@ describe('authorizeRole + authorizeScope combined', () => {
   });
 
   it('should fail if user has valid scope but invalid role', () => {
-    (req as any).user = {
+    req.user = {
+      id: 'user-123',
       role: 'user',
-      scope: ['product:read'],
+      scopes: ['product:read'],
     };
 
     authorizeRole(['admin'])(req as Request, res as Response, next);
@@ -28,9 +29,10 @@ describe('authorizeRole + authorizeScope combined', () => {
   });
 
   it('should fail if user has valid role but missing scope', () => {
-    (req as any).user = {
+    req.user = {
+      id: 'user-123',
       role: 'admin',
-      scope: ['other:read'],
+      scopes: ['other:read'],
     };
 
     authorizeScope(['product:read'])(req as Request, res as Response, next);
@@ -38,9 +40,10 @@ describe('authorizeRole + authorizeScope combined', () => {
   });
 
   it('should pass if user has both valid role and scope', () => {
-    (req as any).user = {
+    req.user = {
+      id: 'user-123',
       role: 'admin',
-      scope: ['product:read', 'product:write'],
+      scopes: ['product:read', 'product:write'],
     };
 
     authorizeRole(['admin'])(req as Request, res as Response, next);

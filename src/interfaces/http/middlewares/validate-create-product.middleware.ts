@@ -6,11 +6,16 @@ import { CreateProductSchema } from '../schemas/zod/product.openapi';
 export const validateCreateProduct = (req: Request, res: Response, next: NextFunction) => {
   try {
     CreateProductSchema.parse(req.body);
-    next();
+    return next();
   } catch (error) {
-    return res.status(400).json({
-      message: 'Invalid product data',
-      errors: error instanceof z.ZodError ? error.message : [],
-    });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: 'Invalid product payload',
+        errors: error instanceof z.ZodError ? [error.message] : [],
+      });
+    }
+
+    // Unknown error (should never happen)
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };

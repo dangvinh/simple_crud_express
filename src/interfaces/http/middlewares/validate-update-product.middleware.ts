@@ -6,11 +6,16 @@ import { UpdateProductSchema } from '../schemas/zod/product.openapi';
 export function validateUpdateProduct(req: Request, res: Response, next: NextFunction) {
   try {
     UpdateProductSchema.parse(req.body);
-    next();
+    return next();
   } catch (error) {
-    return res.status(400).json({
-      message: 'Invalid request payload',
-      errors: error instanceof z.ZodError ? error.message : error,
-    });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        message: 'Invalid request payload',
+        errors: error instanceof z.ZodError ? [error.message] : [],
+      });
+    }
+
+    // Unknown error (should never happen)
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }

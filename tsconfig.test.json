@@ -4,11 +4,18 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "es2022",
-    // Only include types for Jest during testing
-    "types": ["jest", "node"],
+
+    // Define the root folder for module resolution
+    "baseUrl": ".",
+
+    // Define path alias to simplify import paths
+    "paths": {
+      "@/*": ["src/*"]
+    },
     // Optionally override rootDir for test isolation
-    "outDir": "./dist-test"
+    "outDir": "./dist-test",
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
-  "include": ["src/**/*.test.ts", "src/**/*.spec.ts"],
+  "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

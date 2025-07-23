@@ -20,20 +20,22 @@ export class ProductUseCases implements IProductUseCase {
     this.repository = repository!;
   }
 
-  async getAll(params: PaginationParams): Promise<PaginatedResult<Product>> {
+  async getAll(params: PaginationParams): Promise<PaginatedResult<Record<string, unknown>>> {
     const { page, limit } = params;
     logger.info(`Fetching all products with limit=${limit}, page=${page}`);
 
     const { products, total } = await this.repository.findAllWithCount(params);
-    return buildPaginatedResult(products, total, page, limit);
+    const jsonProducts = products.map((product) => product.toPublicObject());
+    return buildPaginatedResult(jsonProducts, total, page, limit);
   }
 
-  async get(id: string): Promise<Product | null> {
+  async get(id: string): Promise<Record<string, unknown> | null> {
     logger.info(`Fetching product with id=${id}`);
-    return this.repository.findById(id);
+    const product = await this.repository.findById(id);
+    return product ? product.toPublicObject() : null;
   }
 
-  async create(dto: CreateProductDTO): Promise<Product> {
+  async create(dto: CreateProductDTO): Promise<Record<string, unknown>> {
     const product = new Product({
       ...dto,
       id: generateUUID(),
@@ -42,10 +44,10 @@ export class ProductUseCases implements IProductUseCase {
     });
     logger.info(`Creating product with id=${product.id}`);
     await this.repository.save(product);
-    return product;
+    return product.toPublicObject();
   }
 
-  async update(id: string, dto: UpdateProductDTO): Promise<Product> {
+  async update(id: string, dto: UpdateProductDTO): Promise<Record<string, unknown>> {
     logger.info(`Updating product with id=${id}`);
     const existing = await this.repository.findById(id);
     if (!existing) {
@@ -69,7 +71,7 @@ export class ProductUseCases implements IProductUseCase {
 
     await this.repository.update(updated);
     logger.info(`Product with id=${id} updated successfully`);
-    return updated;
+    return updated.toPublicObject();
   }
 
   async delete(id: string): Promise<void> {

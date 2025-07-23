@@ -204,6 +204,22 @@ export class Product extends BaseEntity {
     };
   }
 
+  public toPublicObject(): Record<string, unknown> {
+    return {
+      id: this._id,
+      name: this._name,
+      description: this._description,
+      price: this._price,
+      stock: this._stock,
+      category: this._category,
+      isActive: this._isActive,
+      images: this._images,
+      tags: this._tags,
+      createdAt: this._createdAt,
+      updatedAt: this._updatedAt,
+    };
+  }
+
   static fromJSON(json: Record<string, any>): Product {
     return new Product({
       id: json._id,

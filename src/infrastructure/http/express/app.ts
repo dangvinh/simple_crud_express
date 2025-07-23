@@ -6,41 +6,40 @@ import { productRouter } from '../../../interfaces/http/routes/product.routes';
 import { applySecurityMiddleware } from '@/infrastructure/http/express/middlewares/security.middleware';
 import { SwaggerConfig } from '@/config/swagger.config';
 import { redisCache } from '@/infrastructure/cache';
-// import { authenticateJWT } from "@/infrastructure/http/express/middlewares/jwt.middleware";
-// import { authorizeRole } from "@/infrastructure/http/express/middlewares/authorize-role.middleware";
-// import { authorizeScope } from "@/infrastructure/http/express/middlewares/authorize-scope.middleware";
 
-const app = express();
+export async function createApp(): Promise<express.Application> {
+  await redisCache.connectWithRetry();
 
-SwaggerConfig.registerSchemas();
-SwaggerConfig.setup(app);
+  const app = express();
 
-applySecurityMiddleware(app);
+  SwaggerConfig.registerSchemas();
+  SwaggerConfig.setup(app);
 
-// JSON parsing
-app.use(express.json());
+  applySecurityMiddleware(app);
 
-// Logging
-app.use(morgan('dev'));
+  // JSON parsing
+  app.use(express.json());
 
-// Public GET route for all roles with product:read scope
-app.get(
-  '/api/v1/products',
-  // authenticateJWT,
-  // authorizeRole(["admin", "editor", "customer"]),
-  // authorizeScope(["product:read"]),
-  productRouter,
-);
+  // Logging
+  app.use(morgan('dev'));
 
-// Protected routes for admin/editor with read/write
-app.use(
-  '/api/v1/products',
-  // authenticateJWT,
-  // authorizeRole(["admin", "editor"]),
-  // authorizeScope(["product:read", "product:write"]),
-  productRouter,
-);
+  // Public GET route for all roles with product:read scope
+  app.get(
+    '/api/v1/products',
+    // authenticateJWT,
+    // authorizeRole(["admin", "editor", "customer"]),
+    // authorizeScope(["product:read"]),
+    productRouter,
+  );
 
-await redisCache.connectWithRetry();
+  // Protected routes for admin/editor with read/write
+  app.use(
+    '/api/v1/products',
+    // authenticateJWT,
+    // authorizeRole(["admin", "editor"]),
+    // authorizeScope(["product:read", "product:write"]),
+    productRouter,
+  );
 
-export { app };
+  return app;
+}
