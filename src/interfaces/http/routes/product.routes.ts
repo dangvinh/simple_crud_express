@@ -1,6 +1,9 @@
 import { Router } from 'express';
 
 import { ProductController } from '../controllers/product.controller';
+import { validateProductId } from '../middlewares/validate-product-id.middleware';
+import { validateCreateProduct } from '../middlewares/validate-create-product.middleware';
+import { validateUpdateProduct } from '../middlewares/validate-update-product.middleware';
 
 import { ProductUseCases } from '@/application/product/use-cases/product.usecase';
 import { PrismaProductRepository } from '@/infrastructure/database/prisma/repositories/prisma-product.repository';
@@ -33,7 +36,7 @@ router.get('/', controller.getAll);
  *     tags:
  *       - Products
  */
-router.get('/:id', controller.getById);
+router.get('/:id', validateProductId, controller.getById);
 
 /**
  * @openapi
@@ -43,7 +46,7 @@ router.get('/:id', controller.getById);
  *     tags:
  *       - Products
  */
-router.post('/', controller.create);
+router.post('/', validateCreateProduct, controller.create);
 
 /**
  * @openapi
@@ -53,7 +56,7 @@ router.post('/', controller.create);
  *     tags:
  *       - Products
  */
-router.put('/:id', controller.update);
+router.put('/:id', validateProductId, validateUpdateProduct, controller.update);
 
 /**
  * @openapi
@@ -63,6 +66,6 @@ router.put('/:id', controller.update);
  *     tags:
  *       - Products
  */
-router.delete('/:id', controller.remove);
+router.delete('/:id', validateProductId, controller.remove);
 
 export { router as productRouter };
