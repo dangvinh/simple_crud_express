@@ -30,11 +30,9 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
   // Caching (Redis)
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.coerce.number().int().min(1),
-  REDIS_USERNAME: z.string().optional(),
-  REDIS_PASSWORD: z.string().optional(),
+  REDIS_URL: z.url().default(''),
   CACHE_TTL: z.coerce.number().default(3600),
+
   // CORS
   CORS_ORIGINS: z.string().default(''),
 });
@@ -43,14 +41,13 @@ const envSchema = z.object({
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-  // Use zod's treeifyError utility to format errors (flatten is deprecated)
-  logger.error('❌ Invalid environment variables:', z.treeifyError(parsedEnv.error));
+  logger.error(`❌ Invalid environment variables: ${parsedEnv?.error?.message}`);
   process.exit(1);
 }
 
 export const env = {
   ...parsedEnv.data,
-  CORS_ORIGIN_LIST: parsedEnv.data.CORS_ORIGINS.split(',')
+  CORS_ORIGIN_LIST: parsedEnv?.data?.CORS_ORIGINS.split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
 };

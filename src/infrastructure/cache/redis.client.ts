@@ -24,14 +24,8 @@ export class RedisCache {
   private connected = false;
 
   constructor() {
-    const credentials =
-      env.REDIS_USERNAME && env.REDIS_PASSWORD
-        ? `${env.REDIS_USERNAME}:${env.REDIS_PASSWORD}@`
-        : '';
-
-    const redisUrl = `redis://${credentials}${env.REDIS_HOST}:${env.REDIS_PORT}`;
     this.client = createClient({
-      url: redisUrl,
+      url: env.REDIS_URL,
       socket: {
         reconnectStrategy: false,
       },

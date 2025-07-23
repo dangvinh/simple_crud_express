@@ -1,14 +1,14 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: [
-    "src/index.ts", // Main API server
+    'src/index.ts', // Main API server
     // "src/jobs/sync-inventory.ts", // Background job (for future use)
     // "src/worker/queue-listener.ts" // Queue worker (for future use)
   ],
-  outDir: "dist", // Output directory
-  format: ["esm"], // Output as ESM
-  target: "es2022", // Modern JavaScript target
+  outDir: 'dist', // Output directory
+  format: ['esm'], // Output as ESM
+  target: 'es2022', // Modern JavaScript target
   sourcemap: true, // Include source maps for debugging
   clean: true, // Clean the output directory before building
   dts: true, // Generate .d.ts type definitions
@@ -17,4 +17,5 @@ export default defineConfig({
   bundle: true, // Bundle all dependencies
   shims: false, // Do not add CJS shims
   skipNodeModulesBundle: true, // Do not bundle node_modules
+  tsconfig: 'tsconfig.build.json',
 });
