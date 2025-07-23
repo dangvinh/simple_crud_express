@@ -14,8 +14,7 @@ COPY package*.json ./
 # Copy the rest of the application
 COPY . .
 
-# Copy Prisma schema and generate client
-COPY src/infrastructure/database/prisma/schema.prisma src/infrastructure/database/prisma/schema.prisma
+# Generate Prima client & build the application
 RUN npx prisma generate && npm run build
 
 # Expose the port the app runs on
