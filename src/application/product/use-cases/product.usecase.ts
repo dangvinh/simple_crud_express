@@ -1,14 +1,14 @@
-// src/application/use-cases/product.usecase.ts
-import { buildPaginatedResult } from "@/shared/utils/pagination.util";
-import { ProductRepository } from "@/domain/product/repositories/product.repository";
-import { CreateProductDTO } from "../dtos/create-product.dto";
-import { UpdateProductDTO } from "../dtos/update-product.dto";
-import { Product } from "@/domain/product/entities/product.entity";
-import { generateUUID } from "@/shared/utils/uuid.util";
-import { logger } from "@/infrastructure/logging/logger";
-import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
-import { IProductUseCase } from "../interfaces/product-service.interface";
-import { DomainError } from "@/shared/errors/domain.error";
+import type { CreateProductDTO } from '../dtos/create-product.dto';
+import type { UpdateProductDTO } from '../dtos/update-product.dto';
+import type { IProductUseCase } from '../interfaces/product-service.interface';
+
+import { buildPaginatedResult } from '@/shared/utils/pagination.util';
+import type { ProductRepository } from '@/domain/product/repositories/product.repository';
+import { Product } from '@/domain/product/entities/product.entity';
+import { generateUUID } from '@/shared/utils/uuid.util';
+import { logger } from '@/infrastructure/logging/logger';
+import type { PaginationParams, PaginatedResult } from '@/shared/types/pagination';
+import { DomainError } from '@/shared/errors/domain.error';
 
 /**
  * Use cases for Product operations
@@ -36,7 +36,7 @@ export class ProductUseCases implements IProductUseCase {
   async create(dto: CreateProductDTO): Promise<Product> {
     const product = new Product({
       ...dto,
-      id: generateUUID(), // sinh UUID v4
+      id: generateUUID(),
       createdAt: dto.createdAt ?? new Date(),
       updatedAt: dto.updatedAt ?? new Date(),
     });
@@ -50,7 +50,7 @@ export class ProductUseCases implements IProductUseCase {
     const existing = await this.repository.findById(id);
     if (!existing) {
       logger.warn(`Product with id=${id} not found`);
-      throw new DomainError("Product not found");
+      throw new DomainError('Product not found');
     }
 
     const updated = new Product({
@@ -77,7 +77,7 @@ export class ProductUseCases implements IProductUseCase {
     const existing = await this.repository.findById(id);
     if (!existing) {
       logger.warn(`Product with id=${id} not found`);
-      throw new DomainError("Product not found");
+      throw new DomainError('Product not found');
     }
     await this.repository.delete(id);
     logger.info(`Product with id=${id} deleted`);

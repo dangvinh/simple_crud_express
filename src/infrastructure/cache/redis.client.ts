@@ -1,10 +1,12 @@
-import { createClient, RedisClientType } from "redis";
-import { logger } from "@/infrastructure/logging/logger";
-import { env } from "@/config/env.config";
+import type { RedisClientType } from 'redis';
+import { createClient } from 'redis';
+
+import { logger } from '@/infrastructure/logging/logger';
+import { env } from '@/config/env.config';
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const id = setTimeout(() => reject(new Error("Timeout")), ms);
+    const id = setTimeout(() => reject(new Error('Timeout')), ms);
     promise
       .then((res) => {
         clearTimeout(id);
@@ -25,7 +27,7 @@ export class RedisCache {
     const credentials =
       env.REDIS_USERNAME && env.REDIS_PASSWORD
         ? `${env.REDIS_USERNAME}:${env.REDIS_PASSWORD}@`
-        : "";
+        : '';
 
     const redisUrl = `redis://${credentials}${env.REDIS_HOST}:${env.REDIS_PORT}`;
     this.client = createClient({
@@ -35,15 +37,15 @@ export class RedisCache {
       },
     });
 
-    this.client.on("error", (err) => {
+    this.client.on('error', (err) => {
       if (this.client.isOpen) {
-        logger.error("❌ Redis connection error:", err);
+        logger.error('❌ Redis connection error:', err);
       }
     });
 
-    this.client.on("connect", () => {
+    this.client.on('connect', () => {
       this.connected = true;
-      logger.info("✅ Redis connected.");
+      logger.info('✅ Redis connected.');
     });
   }
 
@@ -57,12 +59,12 @@ export class RedisCache {
       } catch (err) {
         logger.error(`❌ Redis connection attempt ${attempt} failed:`, err);
         if (attempt === retries) {
-          logger.error("❌ Max retries reached. Continuing without Redis.");
+          logger.error('❌ Max retries reached. Continuing without Redis.');
 
           try {
             await this.client.quit();
           } catch (quitErr) {
-            logger.warn("⚠️ Redis quit failed after retries:", quitErr);
+            logger.warn('⚠️ Redis quit failed after retries:', quitErr);
           }
 
           this.client.removeAllListeners();
@@ -76,9 +78,7 @@ export class RedisCache {
 
   async get(key: string) {
     if (!this.connected) {
-      logger.warn(
-        `⚠️ Redis GET skipped for key: ${key}, client not connected.`,
-      );
+      logger.warn(`⚠️ Redis GET skipped for key: ${key}, client not connected.`);
       return null;
     }
 
@@ -92,9 +92,7 @@ export class RedisCache {
 
   async set(key: string, value: string, ttlInSeconds: number) {
     if (!this.connected) {
-      logger.warn(
-        `⚠️ Redis SET skipped for key: ${key}, client not connected.`,
-      );
+      logger.warn(`⚠️ Redis SET skipped for key: ${key}, client not connected.`);
       return null;
     }
 
@@ -108,9 +106,7 @@ export class RedisCache {
 
   async delete(key: string) {
     if (!this.connected) {
-      logger.warn(
-        `⚠️ Redis DELETE skipped for key: ${key}, client not connected.`,
-      );
+      logger.warn(`⚠️ Redis DELETE skipped for key: ${key}, client not connected.`);
       return null;
     }
 
@@ -126,7 +122,7 @@ export class RedisCache {
     try {
       return await this.client.quit();
     } catch (err) {
-      logger.error("❌ Redis disconnect failed", err);
+      logger.error('❌ Redis disconnect failed', err);
       return null;
     }
   }

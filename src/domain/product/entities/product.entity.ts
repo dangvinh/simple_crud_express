@@ -1,7 +1,7 @@
 // src/domain/product/entities/product.entity.ts
 
-import { BaseEntity } from "@/shared/base/base.entity";
-import { DomainError } from "@/shared/errors/domain.error";
+import { BaseEntity } from '@/shared/base/base.entity';
+import { DomainError } from '@/shared/errors/domain.error';
 
 export class Product extends BaseEntity {
   private _name!: string;
@@ -83,7 +83,7 @@ export class Product extends BaseEntity {
   // Business methods
   updateName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new DomainError("Product name must not be empty.");
+      throw new DomainError('Product name must not be empty.');
     }
     this._name = name.trim();
     this.touch();
@@ -91,10 +91,10 @@ export class Product extends BaseEntity {
 
   updateDescription(description: string): void {
     if (!description || description.trim().length === 0) {
-      throw new DomainError("Product description must not be empty.");
+      throw new DomainError('Product description must not be empty.');
     }
     if (description.trim().length > 1000) {
-      throw new DomainError("Description is too long.");
+      throw new DomainError('Description is too long.');
     }
     this._description = description.trim();
     this.touch();
@@ -102,25 +102,25 @@ export class Product extends BaseEntity {
 
   updatePrice(price: number): void {
     if (!Number.isFinite(price)) {
-      throw new DomainError("Price must be a valid number.");
+      throw new DomainError('Price must be a valid number.');
     }
-    if (price < 0) throw new DomainError("Price cannot be negative.");
+    if (price < 0) throw new DomainError('Price cannot be negative.');
     this._price = price;
     this.touch();
   }
 
   updateStock(stock: number): void {
     if (!Number.isInteger(stock)) {
-      throw new DomainError("Stock must be an integer.");
+      throw new DomainError('Stock must be an integer.');
     }
-    if (stock < 0) throw new DomainError("Stock cannot be negative.");
+    if (stock < 0) throw new DomainError('Stock cannot be negative.');
     this._stock = stock;
     this.touch();
   }
 
   changeCategory(category: string): void {
     if (!category || category.trim().length === 0) {
-      throw new DomainError("Category must not be empty.");
+      throw new DomainError('Category must not be empty.');
     }
     this._category = category.trim();
     this.touch();
@@ -139,7 +139,7 @@ export class Product extends BaseEntity {
   addImage(url: string): void {
     const urlPattern = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i;
     if (!urlPattern.test(url)) {
-      throw new DomainError("Invalid image URL.");
+      throw new DomainError('Invalid image URL.');
     }
     this._images.push(url);
     this.touch();
@@ -152,7 +152,7 @@ export class Product extends BaseEntity {
 
   addTag(tag: string): void {
     if (!tag || tag.trim().length === 0) {
-      throw new DomainError("Tag must not be empty.");
+      throw new DomainError('Tag must not be empty.');
     }
     const normalizedTag = tag.trim();
     if (!this._tags.includes(normalizedTag)) {
@@ -171,10 +171,10 @@ export class Product extends BaseEntity {
    */
   public decreaseStock(quantity: number): void {
     if (!Number.isInteger(quantity) || quantity <= 0) {
-      throw new DomainError("Quantity must be a positive integer.");
+      throw new DomainError('Quantity must be a positive integer.');
     }
     if (quantity > this._stock) {
-      throw new DomainError("Insufficient stock.");
+      throw new DomainError('Insufficient stock.');
     }
     this._stock -= quantity;
     this.touch();
@@ -185,12 +185,12 @@ export class Product extends BaseEntity {
    */
   public increaseStock(quantity: number): void {
     if (!Number.isInteger(quantity) || quantity <= 0) {
-      throw new DomainError("Quantity must be a positive integer.");
+      throw new DomainError('Quantity must be a positive integer.');
     }
     this._stock += quantity;
     this.touch();
   }
-  toJSON(): Record<string, any> {
+  toJSON(): Record<string, unknown> {
     return {
       _id: this._id,
       _name: this._name,

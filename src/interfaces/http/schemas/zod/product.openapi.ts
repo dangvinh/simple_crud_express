@@ -1,8 +1,6 @@
-import {
-  OpenAPIRegistry,
-  extendZodWithOpenApi,
-} from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
+import type { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { z } from 'zod';
 
 extendZodWithOpenApi(z);
 
@@ -22,30 +20,24 @@ export const CreateProductSchema = z.object({
 export const UpdateProductSchema = CreateProductSchema.partial();
 
 export const registerProductSchemas = (registry: OpenAPIRegistry) => {
-  registry.register(
-    "CreateProductDto",
-    CreateProductSchema.openapi({ title: "CreateProductDto" }),
-  );
-  registry.register(
-    "UpdateProductDto",
-    UpdateProductSchema.openapi({ title: "UpdateProductDto" }),
-  );
+  registry.register('CreateProductDto', CreateProductSchema.openapi({ title: 'CreateProductDto' }));
+  registry.register('UpdateProductDto', UpdateProductSchema.openapi({ title: 'UpdateProductDto' }));
 
   registry.registerPath({
-    method: "get",
-    path: "/products",
-    tags: ["Products"],
+    method: 'get',
+    path: '/products',
+    tags: ['Products'],
     responses: {
       200: {
-        description: "Get all products",
+        description: 'Get all products',
       },
     },
   });
 
   registry.registerPath({
-    method: "get",
-    path: "/products/{id}",
-    tags: ["Products"],
+    method: 'get',
+    path: '/products/{id}',
+    tags: ['Products'],
     request: {
       params: z.object({
         id: z.uuid(),
@@ -53,22 +45,22 @@ export const registerProductSchemas = (registry: OpenAPIRegistry) => {
     },
     responses: {
       200: {
-        description: "Get product by ID",
+        description: 'Get product by ID',
       },
       404: {
-        description: "Product not found",
+        description: 'Product not found',
       },
     },
   });
 
   registry.registerPath({
-    method: "post",
-    path: "/products",
-    tags: ["Products"],
+    method: 'post',
+    path: '/products',
+    tags: ['Products'],
     request: {
       body: {
         content: {
-          "application/json": {
+          'application/json': {
             schema: CreateProductSchema,
           },
         },
@@ -76,25 +68,25 @@ export const registerProductSchemas = (registry: OpenAPIRegistry) => {
     },
     responses: {
       201: {
-        description: "Product created",
+        description: 'Product created',
       },
       400: {
-        description: "Invalid input",
+        description: 'Invalid input',
       },
     },
   });
 
   registry.registerPath({
-    method: "put",
-    path: "/products/{id}",
-    tags: ["Products"],
+    method: 'put',
+    path: '/products/{id}',
+    tags: ['Products'],
     request: {
       params: z.object({
         id: z.uuid(),
       }),
       body: {
         content: {
-          "application/json": {
+          'application/json': {
             schema: UpdateProductSchema,
           },
         },
@@ -102,21 +94,21 @@ export const registerProductSchemas = (registry: OpenAPIRegistry) => {
     },
     responses: {
       200: {
-        description: "Product updated",
+        description: 'Product updated',
       },
       400: {
-        description: "Invalid input",
+        description: 'Invalid input',
       },
       404: {
-        description: "Product not found",
+        description: 'Product not found',
       },
     },
   });
 
   registry.registerPath({
-    method: "delete",
-    path: "/products/{id}",
-    tags: ["Products"],
+    method: 'delete',
+    path: '/products/{id}',
+    tags: ['Products'],
     request: {
       params: z.object({
         id: z.uuid(),
@@ -124,10 +116,10 @@ export const registerProductSchemas = (registry: OpenAPIRegistry) => {
     },
     responses: {
       204: {
-        description: "Product deleted",
+        description: 'Product deleted',
       },
       404: {
-        description: "Product not found",
+        description: 'Product not found',
       },
     },
   });

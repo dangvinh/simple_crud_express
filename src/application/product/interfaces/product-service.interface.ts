@@ -1,9 +1,8 @@
-// src/application/product/interfaces/product-service.interface.ts
+import type { CreateProductDTO } from '../dtos/create-product.dto';
+import type { UpdateProductDTO } from '../dtos/update-product.dto';
 
-import { Product } from "@/domain/product/entities/product.entity";
-import { CreateProductDTO } from "../dtos/create-product.dto";
-import { UpdateProductDTO } from "../dtos/update-product.dto";
-import { PaginationParams, PaginatedResult } from "@/shared/types/pagination";
+import type { Product } from '@/domain/product/entities/product.entity';
+import type { PaginationParams, PaginatedResult } from '@/shared/types/pagination';
 
 export interface IProductUseCase {
   create(dto: CreateProductDTO): Promise<Product>;

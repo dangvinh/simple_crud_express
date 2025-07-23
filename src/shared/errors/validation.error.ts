@@ -5,9 +5,9 @@
 export class ValidationError extends Error {
   public readonly statusCode: number;
 
-  constructor(message: string = "Validation failed") {
+  constructor(message: string = 'Validation failed') {
     super(message);
-    this.name = "ValidationError";
+    this.name = 'ValidationError';
     this.statusCode = 422;
 
     if (Error.captureStackTrace) {

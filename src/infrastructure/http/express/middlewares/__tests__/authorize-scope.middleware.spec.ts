@@ -1,7 +1,8 @@
-import { authorizeScope } from "../authorize-scope.middleware";
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from 'express';
 
-describe("authorizeScope middleware", () => {
+import { authorizeScope } from '../authorize-scope.middleware';
+
+describe('authorizeScope middleware', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let next: NextFunction;
@@ -15,26 +16,26 @@ describe("authorizeScope middleware", () => {
     next = jest.fn();
   });
 
-  it("should return 403 if no user or scope info is present", () => {
-    authorizeScope(["product:read"])(req as Request, res as Response, next);
+  it('should return 403 if no user or scope info is present', () => {
+    authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Access denied. No scope information found.",
+      message: 'Access denied. No scope information found.',
     });
   });
 
-  it("should return 403 if user lacks required scope", () => {
-    (req as any).user = { scope: ["product:write"] };
-    authorizeScope(["product:read"])(req as Request, res as Response, next);
+  it('should return 403 if user lacks required scope', () => {
+    (req as any).user = { scope: ['product:write'] };
+    authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({
-      message: "Access denied. Insufficient scope.",
+      message: 'Access denied. Insufficient scope.',
     });
   });
 
-  it("should call next if user has one of the required scopes", () => {
-    (req as any).user = { scope: ["product:read", "product:write"] };
-    authorizeScope(["product:read"])(req as Request, res as Response, next);
+  it('should call next if user has one of the required scopes', () => {
+    (req as any).user = { scope: ['product:read', 'product:write'] };
+    authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(next).toHaveBeenCalled();
   });
 });

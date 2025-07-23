@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
-import { ProductController } from "../product.controller";
-import { ProductUseCases } from "@/application/product/use-cases/product.usecase";
-import { Product } from "@/domain/product/entities/product.entity";
+import type { Request, Response } from 'express';
 
-describe("ProductController", () => {
+import { ProductController } from '../product.controller';
+
+import type { ProductUseCases } from '@/application/product/use-cases/product.usecase';
+import { Product } from '@/domain/product/entities/product.entity';
+
+describe('ProductController', () => {
   let controller: ProductController;
   let mockUseCase: jest.Mocked<ProductUseCases>;
   let req: Partial<Request>;
@@ -38,14 +40,14 @@ describe("ProductController", () => {
     jest.clearAllMocks();
   });
 
-  it("should return all products with total count", async () => {
+  it('should return all products with total count', async () => {
     const mockProduct = new Product({
-      id: "1",
-      name: "Product A",
-      description: "Test description",
+      id: '1',
+      name: 'Product A',
+      description: 'Test description',
       price: 100,
       stock: 10,
-      category: "Test Category",
+      category: 'Test Category',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -58,7 +60,7 @@ describe("ProductController", () => {
       totalPages: 1,
     });
 
-    req.query = { limit: "10", page: "1" };
+    req.query = { limit: '10', page: '1' };
     await controller.getAll(req as Request, res as Response);
 
     expect(mockUseCase.getAll).toHaveBeenCalledWith({ limit: 10, page: 1 });
@@ -73,45 +75,45 @@ describe("ProductController", () => {
     });
   });
 
-  it("should return a product by ID", async () => {
+  it('should return a product by ID', async () => {
     const mockProduct = new Product({
-      id: "1",
-      name: "Product A",
-      description: "Test description",
+      id: '1',
+      name: 'Product A',
+      description: 'Test description',
       price: 100,
       stock: 10,
-      category: "Test Category",
+      category: 'Test Category',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
     mockUseCase.get.mockResolvedValue(mockProduct);
 
-    req.params = { id: "1" };
+    req.params = { id: '1' };
     await controller.getById(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(200);
     expect(mockJson).toHaveBeenCalledWith(mockProduct);
   });
 
-  it("should return 404 if product not found", async () => {
+  it('should return 404 if product not found', async () => {
     mockUseCase.get.mockResolvedValue(null);
 
-    req.params = { id: "1" };
+    req.params = { id: '1' };
     await controller.getById(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(404);
-    expect(mockJson).toHaveBeenCalledWith({ message: "Product not found" });
+    expect(mockJson).toHaveBeenCalledWith({ message: 'Product not found' });
   });
 
-  it("should create a product", async () => {
-    const dto = { name: "New Product", price: 100 };
+  it('should create a product', async () => {
+    const dto = { name: 'New Product', price: 100 };
     const createdProduct = new Product({
-      id: "1",
-      name: "New Product",
-      description: "A new product",
+      id: '1',
+      name: 'New Product',
+      description: 'A new product',
       price: 100,
       stock: 10,
-      category: "General",
+      category: 'General',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -124,21 +126,21 @@ describe("ProductController", () => {
     expect(mockJson).toHaveBeenCalledWith(createdProduct);
   });
 
-  it("should update a product", async () => {
-    const dto = { name: "Updated Product" };
+  it('should update a product', async () => {
+    const dto = { name: 'Updated Product' };
     const updatedProduct = new Product({
-      id: "1",
-      name: "Updated Product",
-      description: "Updated description",
+      id: '1',
+      name: 'Updated Product',
+      description: 'Updated description',
       price: 200,
       stock: 20,
-      category: "Updated Category",
+      category: 'Updated Category',
       createdAt: new Date(),
       updatedAt: new Date(),
     });
     mockUseCase.update.mockResolvedValue(updatedProduct);
 
-    req.params = { id: "1" };
+    req.params = { id: '1' };
     req.body = dto;
     await controller.update(req as Request, res as Response);
 
@@ -146,10 +148,10 @@ describe("ProductController", () => {
     expect(mockJson).toHaveBeenCalledWith(updatedProduct);
   });
 
-  it("should delete a product", async () => {
+  it('should delete a product', async () => {
     mockUseCase.delete.mockResolvedValue(undefined);
 
-    req.params = { id: "1" };
+    req.params = { id: '1' };
     await controller.remove(req as Request, res as Response);
 
     expect(mockStatus).toHaveBeenCalledWith(204);

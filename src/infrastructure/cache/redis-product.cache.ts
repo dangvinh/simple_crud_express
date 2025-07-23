@@ -1,8 +1,9 @@
-import { Product } from "@/domain/product/entities/product.entity";
-import { logger } from "@/infrastructure/logging/logger";
-import { CACHE_TTL } from "@/config/cache.config";
-import { RedisCache } from "./redis.client";
-import { buildProductCacheKey } from "./utils/cache-key.util";
+import type { RedisCache } from './redis.client';
+import { buildProductCacheKey } from './utils/cache-key.util';
+
+import { Product } from '@/domain/product/entities/product.entity';
+import { logger } from '@/infrastructure/logging/logger';
+import { CACHE_TTL } from '@/config/cache.config';
 
 class ProductCache {
   private readonly redis: RedisCache;

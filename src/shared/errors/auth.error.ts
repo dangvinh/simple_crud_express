@@ -5,9 +5,9 @@
 export class AuthenticationError extends Error {
   public readonly statusCode: number;
 
-  constructor(message: string = "Authentication failed") {
+  constructor(message: string = 'Authentication failed') {
     super(message);
-    this.name = "AuthenticationError";
+    this.name = 'AuthenticationError';
     this.statusCode = 401;
 
     if (Error.captureStackTrace) {
@@ -23,9 +23,9 @@ export class AuthenticationError extends Error {
 export class AuthorizationError extends Error {
   public readonly statusCode: number;
 
-  constructor(message: string = "Access denied") {
+  constructor(message: string = 'Access denied') {
     super(message);
-    this.name = "AuthorizationError";
+    this.name = 'AuthorizationError';
     this.statusCode = 403;
 
     if (Error.captureStackTrace) {

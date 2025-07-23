@@ -1,11 +1,13 @@
 // src/interfaces/http/routes/product.routes.ts
-import { Router } from "express";
-import { ProductController } from "../controllers/product.controller";
-import { ProductUseCases } from "@/application/product/use-cases/product.usecase";
-import { PrismaProductRepository } from "@/infrastructure/database/prisma/repositories/prisma-product.repository";
-import { prisma } from "@/infrastructure/database/prisma/client";
-import { ProductCache } from "@/infrastructure/cache/redis-product.cache";
-import { redisCache } from "@/infrastructure/cache";
+import { Router } from 'express';
+
+import { ProductController } from '../controllers/product.controller';
+
+import { ProductUseCases } from '@/application/product/use-cases/product.usecase';
+import { PrismaProductRepository } from '@/infrastructure/database/prisma/repositories/prisma-product.repository';
+import { prisma } from '@/infrastructure/database/prisma/client';
+import { ProductCache } from '@/infrastructure/cache/redis-product.cache';
+import { redisCache } from '@/infrastructure/cache';
 
 const router = Router();
 
@@ -22,7 +24,7 @@ const controller = new ProductController(service);
  *     tags:
  *       - Products
  */
-router.get("/", controller.getAll);
+router.get('/', controller.getAll);
 
 /**
  * @openapi
@@ -32,7 +34,7 @@ router.get("/", controller.getAll);
  *     tags:
  *       - Products
  */
-router.get("/:id", controller.getById);
+router.get('/:id', controller.getById);
 
 /**
  * @openapi
@@ -42,7 +44,7 @@ router.get("/:id", controller.getById);
  *     tags:
  *       - Products
  */
-router.post("/", controller.create);
+router.post('/', controller.create);
 
 /**
  * @openapi
@@ -52,7 +54,7 @@ router.post("/", controller.create);
  *     tags:
  *       - Products
  */
-router.put("/:id", controller.update);
+router.put('/:id', controller.update);
 
 /**
  * @openapi
@@ -62,6 +64,6 @@ router.put("/:id", controller.update);
  *     tags:
  *       - Products
  */
-router.delete("/:id", controller.remove);
+router.delete('/:id', controller.remove);
 
 export { router as productRouter };

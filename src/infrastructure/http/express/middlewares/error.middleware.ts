@@ -1,23 +1,16 @@
-import { Request, Response, NextFunction } from "express";
-import { DomainError } from "@/shared/errors/domain.error";
-import { NotFoundError } from "@/shared/errors/not-found.error";
-import { ValidationError } from "@/shared/errors/validation.error";
-import {
-  AuthenticationError,
-  AuthorizationError,
-} from "@/shared/errors/auth.error";
-import { DatabaseError } from "@/shared/errors/database.error";
-import { logger } from "@/infrastructure/logging/logger";
+import type { Request, Response, NextFunction } from 'express';
 
-export function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+import { DomainError } from '@/shared/errors/domain.error';
+import { NotFoundError } from '@/shared/errors/not-found.error';
+import { ValidationError } from '@/shared/errors/validation.error';
+import { AuthenticationError, AuthorizationError } from '@/shared/errors/auth.error';
+import { DatabaseError } from '@/shared/errors/database.error';
+import { logger } from '@/infrastructure/logging/logger';
+
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   if (err instanceof DomainError) {
     return res.status(400).json({
-      error: "DomainError",
+      error: 'DomainError',
       message: err.message,
     });
   }
@@ -44,17 +37,17 @@ export function errorHandler(
   }
 
   if (err instanceof DatabaseError) {
-    logger.error("Database error occurred", { error: err });
+    logger.error('Database error occurred', { error: err });
     return res.status(err.statusCode).json({
       error: err.name,
-      message: "Internal database error",
+      message: 'Internal database error',
     });
   }
 
-  logger.error("Unhandled error occurred", { error: err });
+  logger.error('Unhandled error occurred', { error: err });
 
   return res.status(500).json({
-    error: "InternalServerError",
-    message: "Something went wrong",
+    error: 'InternalServerError',
+    message: 'Something went wrong',
   });
 }

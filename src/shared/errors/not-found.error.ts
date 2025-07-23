@@ -5,9 +5,9 @@
 export class NotFoundError extends Error {
   public readonly statusCode: number;
 
-  constructor(message: string = "Resource not found") {
+  constructor(message: string = 'Resource not found') {
     super(message);
-    this.name = "NotFoundError";
+    this.name = 'NotFoundError';
     this.statusCode = 404;
 
     // Maintains proper stack trace for where error was thrown

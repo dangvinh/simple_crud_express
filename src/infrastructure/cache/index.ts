@@ -1,3 +1,3 @@
-import { RedisCache } from "./redis.client";
+import { RedisCache } from './redis.client';
 
 export const redisCache = new RedisCache();

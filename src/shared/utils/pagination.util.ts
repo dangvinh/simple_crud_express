@@ -1,4 +1,4 @@
-import type { PaginationParams, PaginatedResult } from "../types/pagination";
+import type { PaginationParams, PaginatedResult } from '../types/pagination';
 
 // Convert PaginationParams into offset and limit values
 export function calculatePagination(params: PaginationParams): {

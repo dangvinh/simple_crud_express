@@ -1,5 +1,3 @@
-// src/application/product/dto/create-product.dto.ts
-
 export interface CreateProductDTO {
   name: string;
   description: string;

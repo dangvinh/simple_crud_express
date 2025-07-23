@@ -1,8 +1,9 @@
-import { Request, Response, NextFunction } from "express";
-import { authorizeScope } from "../authorize-scope.middleware";
-import { authorizeRole } from "../authorize-role.middleware";
+import type { Request, Response, NextFunction } from 'express';
 
-describe("authorizeRole + authorizeScope combined", () => {
+import { authorizeScope } from '../authorize-scope.middleware';
+import { authorizeRole } from '../authorize-role.middleware';
+
+describe('authorizeRole + authorizeScope combined', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let next: NextFunction;
@@ -16,34 +17,34 @@ describe("authorizeRole + authorizeScope combined", () => {
     next = jest.fn();
   });
 
-  it("should fail if user has valid scope but invalid role", () => {
+  it('should fail if user has valid scope but invalid role', () => {
     (req as any).user = {
-      role: "user",
-      scope: ["product:read"],
+      role: 'user',
+      scope: ['product:read'],
     };
 
-    authorizeRole(["admin"])(req as Request, res as Response, next);
+    authorizeRole(['admin'])(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(403);
   });
 
-  it("should fail if user has valid role but missing scope", () => {
+  it('should fail if user has valid role but missing scope', () => {
     (req as any).user = {
-      role: "admin",
-      scope: ["other:read"],
+      role: 'admin',
+      scope: ['other:read'],
     };
 
-    authorizeScope(["product:read"])(req as Request, res as Response, next);
+    authorizeScope(['product:read'])(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(403);
   });
 
-  it("should pass if user has both valid role and scope", () => {
+  it('should pass if user has both valid role and scope', () => {
     (req as any).user = {
-      role: "admin",
-      scope: ["product:read", "product:write"],
+      role: 'admin',
+      scope: ['product:read', 'product:write'],
     };
 
-    authorizeRole(["admin"])(req as Request, res as Response, next);
-    authorizeScope(["product:read"])(req as Request, res as Response, next);
+    authorizeRole(['admin'])(req as Request, res as Response, next);
+    authorizeScope(['product:read'])(req as Request, res as Response, next);
 
     expect(next).toHaveBeenCalledTimes(2);
   });

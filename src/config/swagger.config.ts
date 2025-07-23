@@ -1,10 +1,8 @@
-import {
-  OpenAPIRegistry,
-  OpenApiGeneratorV3,
-} from "@asteasolutions/zod-to-openapi";
-import swaggerUi from "swagger-ui-express";
-import { Express } from "express";
-import { registerProductSchemas } from "@/interfaces/http/schemas/zod/product.openapi";
+import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi';
+import swaggerUi from 'swagger-ui-express';
+import type { Express } from 'express';
+
+import { registerProductSchemas } from '@/interfaces/http/schemas/zod/product.openapi';
 
 export class SwaggerConfig {
   private static readonly registry = new OpenAPIRegistry();
@@ -23,25 +21,25 @@ export class SwaggerConfig {
   static setup(app: Express): void {
     const generator = new OpenApiGeneratorV3(this.registry.definitions);
     const document = generator.generateDocument({
-      openapi: "3.0.0",
+      openapi: '3.0.0',
       info: {
-        title: "Simple CRUD API",
-        version: "1.0.0",
-        description: "REST API documentation for Simple CRUD System",
+        title: 'Simple CRUD API',
+        version: '1.0.0',
+        description: 'REST API documentation for Simple CRUD System',
       },
       servers: [
         {
-          url: "/api/v1",
+          url: '/api/v1',
         },
       ],
       tags: [
         {
-          name: "Products",
-          description: "Operations related to products",
+          name: 'Products',
+          description: 'Operations related to products',
         },
       ],
     });
 
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(document));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(document));
   }
 }
