@@ -7,10 +7,12 @@ import { AuthenticationError, AuthorizationError } from '@/shared/errors/auth.er
 import { DatabaseError } from '@/shared/errors/database.error';
 import { logger } from '@/infrastructure/logging/logger';
 
-export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
+const isProd = process.env.NODE_ENV === 'production';
+
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof DomainError) {
     return res.status(400).json({
-      error: 'DomainError',
+      error: isProd ? 'BadRequest' : 'DomainError',
       message: err.message,
     });
   }
@@ -39,15 +41,14 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   if (err instanceof DatabaseError) {
     logger.error('Database error occurred', { error: err });
     return res.status(err.statusCode).json({
-      error: err.name,
-      message: 'Internal database error',
+      error: isProd ? 'InternalServerError' : err.name,
+      message: 'Internal server error',
     });
   }
 
   logger.error('Unhandled error occurred', { error: err });
-
   return res.status(500).json({
     error: 'InternalServerError',
-    message: 'Something went wrong',
+    message: 'Unexpected internal error',
   });
 }

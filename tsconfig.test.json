@@ -1,18 +1,12 @@
 {
-  // Extends the main tsconfig settings
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "es2020",
     "module": "es2022",
-
-    // Define the root folder for module resolution
     "baseUrl": ".",
-
-    // Define path alias to simplify import paths
     "paths": {
       "@/*": ["src/*"]
     },
-    // Optionally override rootDir for test isolation
     "outDir": "./dist-test",
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },

@@ -1,10 +1,10 @@
-# 🛒 Simple CRUD Backend (Clean Architecture)
+# Simple CRUD Backend (Clean Architecture)
 
 A production-ready backend system for a simple CRUD application built with **Node.js**, **TypeScript**, **Express**, **PostgreSQL**, **Prisma**, and **Redis**, following **Clean Architecture** principles.
 
 ---
 
-## 📦 Features
+## Features
 
 - ✅ RESTful API with Express.js
 - ✅ Clean Architecture: Domain / Application / Infrastructure / Interfaces / Config
@@ -18,7 +18,7 @@ A production-ready backend system for a simple CRUD application built with **Nod
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer         | Technology                       |
 | ------------- | -------------------------------- |
@@ -37,7 +37,7 @@ A production-ready backend system for a simple CRUD application built with **Nod
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```bash
 src/
@@ -55,7 +55,7 @@ src/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone and Install
 
@@ -103,7 +103,7 @@ docker-compose up --build
 
 ---
 
-## 🧪 Linting & Formatting
+## Linting & Formatting
 
 ```bash
 npm run lint        # Lint all .ts files
@@ -112,7 +112,7 @@ npm run format      # Format files with Prettier
 
 ---
 
-## 🔍 API Documentation
+## API Documentation
 
 Swagger UI available at:
 
@@ -122,13 +122,13 @@ GET /api-docs
 
 ---
 
-## 🧱 License
+## License
 
 MIT © Vinh Dang Quang
 
 ---
 
-## 📌 Notes
+## Notes
 
 - This project follows Clean Architecture.
 - Prisma client is generated for both `darwin` (local) and `linux-musl-arm64` (Docker).

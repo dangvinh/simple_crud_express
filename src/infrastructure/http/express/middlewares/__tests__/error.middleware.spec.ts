@@ -67,17 +67,17 @@ describe('errorHandler middleware', () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'DatabaseError',
-      message: 'Internal database error',
+      message: 'Internal server error',
     });
   });
 
   it('should handle generic Error', () => {
-    const error = new Error('Something went wrong');
+    const error = new Error('Unexpected internal error');
     errorHandler(error, req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       error: 'InternalServerError',
-      message: 'Something went wrong',
+      message: 'Unexpected internal error',
     });
   });
 });

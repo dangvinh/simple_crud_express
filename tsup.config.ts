@@ -17,5 +17,5 @@ export default defineConfig({
   bundle: true, // Bundle all dependencies
   shims: false, // Do not add CJS shims
   skipNodeModulesBundle: true, // Do not bundle node_modules
-  tsconfig: 'tsconfig.build.json',
+  tsconfig: 'tsconfig.build.json', // Use a custom tsconfig for build (exclude tests, use production settings)
 });
