@@ -1,5 +1,7 @@
 # Simple CRUD Backend (Clean Architecture)
 
+[![codecov](https://codecov.io/gh/dangvinh/simple_crud_express/branch/development/graph/badge.svg)](https://codecov.io/gh/dangvinh/simple_crud_express)
+
 A production-ready backend system for a simple CRUD application built with **Node.js**, **TypeScript**, **Express**, **PostgreSQL**, **Prisma**, and **Redis**, following **Clean Architecture** principles.
 
 ---
