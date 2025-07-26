@@ -156,4 +156,12 @@ describe('Product Entity', () => {
     expect(product.images).toEqual(['https://example.com/img1.png']);
     expect(product.tags).toEqual(['featured', 'tech']);
   });
+  it('should throw if images array contains invalid URL', () => {
+    expect(() => {
+      new Product({
+        ...baseProps,
+        images: ['https://valid.com/img.png', 'invalid-url'],
+      });
+    }).toThrow('Invalid image URL.');
+  });
 });
