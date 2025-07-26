@@ -1,4 +1,8 @@
-import { calculatePagination, buildPaginatedResult } from '../pagination.util';
+import {
+  calculatePagination,
+  buildPaginatedResult,
+  getPaginationMetadata,
+} from '../pagination.util';
 
 describe('Pagination Utilities', () => {
   describe('calculatePagination', () => {
@@ -34,6 +38,38 @@ describe('Pagination Utilities', () => {
         total: 0,
         totalPages: 0,
       });
+    });
+  });
+});
+
+describe('getPaginationMetadata', () => {
+  it('should return correct metadata for a middle page', () => {
+    const result = getPaginationMetadata(100, 2, 10);
+    expect(result).toEqual({
+      currentPage: 2,
+      totalPages: 10,
+      hasNextPage: true,
+      hasPreviousPage: true,
+    });
+  });
+
+  it('should return correct metadata for the first page', () => {
+    const result = getPaginationMetadata(50, 1, 10);
+    expect(result).toEqual({
+      currentPage: 1,
+      totalPages: 5,
+      hasNextPage: true,
+      hasPreviousPage: false,
+    });
+  });
+
+  it('should return correct metadata for the last page', () => {
+    const result = getPaginationMetadata(30, 3, 10);
+    expect(result).toEqual({
+      currentPage: 3,
+      totalPages: 3,
+      hasNextPage: false,
+      hasPreviousPage: true,
     });
   });
 });

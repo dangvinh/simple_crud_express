@@ -26,3 +26,23 @@ export function buildPaginatedResult<T>(
     totalPages,
   };
 }
+
+// Get pagination metadata (for UI or API response)
+export function getPaginationMetadata(
+  total: number,
+  page: number,
+  limit: number,
+): {
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+} {
+  const totalPages = Math.ceil(total / limit);
+  return {
+    currentPage: page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPreviousPage: page > 1,
+  };
+}
