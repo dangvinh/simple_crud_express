@@ -145,4 +145,15 @@ describe('Product Entity', () => {
     expect(() => product.increaseStock(0)).toThrow('Quantity must be a positive integer.');
     expect(() => product.decreaseStock(0)).toThrow('Quantity must be a positive integer.');
   });
+
+  it('should create product with optional images and tags', () => {
+    const product = new Product({
+      ...baseProps,
+      images: ['https://example.com/img1.png'],
+      tags: ['featured', 'tech'],
+    });
+
+    expect(product.images).toEqual(['https://example.com/img1.png']);
+    expect(product.tags).toEqual(['featured', 'tech']);
+  });
 });
