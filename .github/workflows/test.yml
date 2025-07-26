@@ -9,6 +9,31 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: clean_arch_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -17,12 +42,21 @@ jobs:
         with:
           node-version: 18
 
+      - name: Set env vars
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@postgres:5432/clean_arch_db" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://redis:6379" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Run Prisma migrations
+        run: npx prisma migrate deploy
+
       - name: Run tests with coverage
-        run: npm run test -- --coverage
+        run: npm run test:coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+        # with:
+          # token: ${{ secrets.CODECOV_TOKEN }}
