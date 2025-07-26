@@ -45,6 +45,8 @@ const config: Config = {
 
   coverageReporters: ['text', 'lcov', 'html'], // Report formats
 
+  coveragePathIgnorePatterns: ['/node_modules/', '/src/types/', '/src/config/'], // Ignore patterns for coverage
+
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.test.json', // Specific tsconfig for tests
