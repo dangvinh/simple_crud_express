@@ -19,7 +19,7 @@
     "test:unit": "jest --config jest.config.ts",
     "test:integration": "jest --config jest.config.ts tests/integration",
     "test:e2e": "jest --config jest.config.ts tests/e2e",
-    "test:coverage": "jest --config jest.config.ts --coverage",
+    "test:coverage": "dotenv -e .env.test -- jest --config jest.config.ts --coverage",
     "test:watch": "jest --watch",
     "prepare": "husky install"
   },
@@ -63,6 +63,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
+    "dotenv-cli": "^9.0.0",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
