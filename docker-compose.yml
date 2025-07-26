@@ -10,7 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ./data/simple_e_commerce/postgres:/var/lib/postgresql/data
+      - ./data/simple_crud_express/postgres:/var/lib/postgresql/data
     networks:
       - clean_arch_network
   redis:
@@ -20,7 +20,7 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - ./data/simple_e_commerce/redis:/data
+      - ./data/simple_crud_express/redis:/data
     networks:
       - clean_arch_network
   app:

@@ -60,8 +60,8 @@ src/
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/your-username/simple_e_commerce.git
-cd simple_e_commerce
+git clone https://github.com/your-username/simple_crud_express.git
+cd simple_crud_express
 npm install
 ```
 
