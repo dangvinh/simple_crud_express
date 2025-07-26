@@ -65,7 +65,20 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
+      - name: Check coverage file exists
+        run: |
+          if [ ! -f coverage/lcov.info ]; then
+            echo "❌ coverage/lcov.info not found!"
+            exit 1
+          else
+            echo "✅ coverage/lcov.info exists."
+          fi
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-coverage
+          fail_ci_if_error: true
