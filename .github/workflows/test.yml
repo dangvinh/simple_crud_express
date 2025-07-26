@@ -50,6 +50,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in {1..30}; do
+            nc -z postgres 5432 && echo "Postgres is up!" && exit 0
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+          echo "Postgres never became available" && exit 1
+
       - name: Run Prisma migrations
         run: npx prisma migrate deploy
 
@@ -59,4 +68,4 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         # with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
+        # token: ${{ secrets.CODECOV_TOKEN }}
