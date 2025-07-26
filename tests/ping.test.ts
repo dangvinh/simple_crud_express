@@ -1,5 +1,5 @@
 describe('Ping test', () => {
-  it('should always pass', () => {
+  it('It should always pass', () => {
     expect(true).toBe(true);
   });
 });
