@@ -1,4 +1,3 @@
-// Minor change to trigger Codecov delta coverage
 import type { RedisCache } from './redis.client';
 import { buildProductCacheKey } from './utils/cache-key.util';
 
