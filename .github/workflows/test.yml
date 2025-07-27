@@ -1,4 +1,4 @@
-name: Test & Coverage
+name: Build and Test
 
 on:
   push:
@@ -35,10 +35,7 @@ jobs:
           --health-retries=5
 
     steps:
-      # - uses: actions/checkout@v3
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -78,10 +75,11 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-coverage
           fail_ci_if_error: true
+          verbose: true
